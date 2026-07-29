@@ -1,24 +1,65 @@
-<img align="right" width="40%" src="https://www.finos.org/hubfs/FINOS/finos-logo/FINOS_Icon_Wordmark_Name_RGB_horizontal.png">
+[![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://community.finos.org/docs/governance/lifecycle-stages/incubating)
 
-# FINOS Software Project Blueprint
+# CALM Schema
 
-Project blueprint is a GitHub repository template for all [Fintech Open Source Foundation (FINOS)](https://www.finos.org/) hosted GitHub repositories, contributed and maintained by FINOS.
+Short blurb about what your project does.
 
-## How to use this blueprint
+## Installation
 
-Please follow instructions on [community.finos.org/docs/collaboration-infrastructure#finos-project-blueprint](https://community.finos.org/docs/collaboration-infrastructure#finos-project-blueprint)
+OS X & Linux:
 
-## Blueprint preview
+```sh
+npm install my-crazy-module --save
+```
 
-A preview of the blueprint can be found on [project-blueprint.finos.org](https://project-blueprint.finos.org)
+Windows:
 
-## Governance
+```sh
+edit autoexec.bat
+```
 
-This blueprint implements [FINOS open source software project governance](https://community.finos.org/docs/governance/#open-source-software-projects) on community.finos.org.
+## Usage example
+
+A few motivating and useful examples of how your project can be used. Spice this up with code blocks and potentially screenshots / videos ([LiceCap](https://www.cockos.com/licecap/) is great for this kind of thing).
+
+_For more examples and usage, please refer to the [Wiki][wiki]._
+
+## Development setup
+
+Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
+
+```sh
+make install
+npm test
+```
+
+## Roadmap
+
+List the roadmap steps; alternatively link the Confluence Wiki page where the project roadmap is published.
+
+1. Item 1
+2. Item 2
+3. ....
+
+## Contributing
+For any questions, bugs or feature requests please open an [issue](https://github.com/finos/calm-schema/issues)
+For anything else please send an email to {project mailing list}.
+
+To submit a contribution:
+1. Fork it (<https://github.com/finos/calm-schema/fork>)
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Read our [contribution guidelines](CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
+4. Commit your changes (`git commit -am 'Add some fooBar'`)
+5. Push to the branch (`git push origin feature/fooBar`)
+6. Create a new Pull Request
+
+_NOTE:_ Pull requests must follow this repository’s contribution policy. FINOS projects typically use **DCO** (signed commits) and/or **CLA** via [EasyCLA](https://community.finos.org/docs/governance/Software-Projects/easycla), depending on configuration. Read [FINOS Contribution Requirements](https://community.finos.org/docs/governance/Software-Projects/contribution-compliance-requirements) and the [Technical Charter](technical-charter.pdf) example referenced from [CONTRIBUTING.md](CONTRIBUTING.md) before contributing.
+
+*Questions about CLA, DCO, or EasyCLA? Email [help@finos.org](mailto:help@finos.org)*
 
 ## License
 
-Copyright 2019 Fintech Open Source Foundation
+Copyright {yyyy} {name of copyright owner}
 
 Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
