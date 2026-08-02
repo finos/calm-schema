@@ -1,20 +1,15 @@
 # Maintainers
 
-This file lists the maintainers of this repository.
+**This roster has moved.** The Maintainers of the FINOS Architecture as Code project (also known as CALM) are listed in the project's governance repository:
 
-## Current maintainers
+### → [finos/calm-governance/MAINTAINERS.md](https://github.com/finos/calm-governance/blob/main/MAINTAINERS.md)
 
-| GitHub Username | Name | Organization | Email |
-|----------------|------|--------------|-------|
+The roster is project-wide and covers every repository in the project, including this one, so it is held in one place rather than duplicated per repository. That file also records the **Lead Maintainer**. This file remains as a pointer so that existing links to it continue to resolve.
 
-For information about maintainer responsibilities and resources, see the [FINOS Maintainers Cheatsheet](https://community.finos.org/docs/finos-maintainers-cheatsheet).
+The roles of Maintainer and Lead Maintainer, the qualifications for becoming a Maintainer, and the processes for electing and removing Maintainers are defined in [GOVERNANCE.md](https://github.com/finos/calm-governance/blob/main/GOVERNANCE.md).
 
-## Updating this file
+## Proposing a change to the roster
 
-All changes to the maintainer list are managed openly:
+Raise a pull request against [MAINTAINERS.md in finos/calm-governance](https://github.com/finos/calm-governance/blob/main/MAINTAINERS.md), linking any vote outcome required by [GOVERNANCE.md](https://github.com/finos/calm-governance/blob/main/GOVERNANCE.md).
 
-- **Submit a Pull Request** to this file for any addition, removal, or update.
-- **If your project's governance requires a vote**, document or link to the vote outcome in the PR description or comments.
-- This process creates a public audit trail of project leadership over time.
-
-Please email **help@finos.org** whenever this file is updated with a change to maintainership.
+Please email **help@finos.org** whenever the roster is updated with a change to maintainership.
