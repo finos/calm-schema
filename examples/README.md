@@ -1,5 +1,4 @@
 # examples
 
-Worked examples demonstrating the schema — interface examples and, once migrated, the
-CALM prototype/sample architectures from `finos/architecture-as-code`. Currently empty
-pending that migration.
+Worked examples demonstrating the schema, migrated over time from
+`finos/architecture-as-code`'s `calm/draft` and `calm/release` directories.

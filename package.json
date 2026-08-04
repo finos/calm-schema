@@ -14,6 +14,7 @@
   },
   "files": [
     "schema",
+    "CHANGELOG.md",
     "LICENSE",
     "LICENSE.spdx",
     "NOTICE"
