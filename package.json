@@ -1,0 +1,35 @@
+{
+  "name": "@finos/calm-schema",
+  "version": "0.0.0",
+  "description": "The CALM (Common Architecture Language Model) Meta Schema",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/finos/calm-schema.git"
+  },
+  "homepage": "https://github.com/finos/calm-schema#readme",
+  "bugs": {
+    "url": "https://github.com/finos/calm-schema/issues"
+  },
+  "files": [
+    "schema",
+    "LICENSE",
+    "LICENSE.spdx",
+    "NOTICE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "validate": "npm test"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}
