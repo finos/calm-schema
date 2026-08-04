@@ -1,0 +1,58 @@
+name: 📐 Schema Change Proposal
+description: Propose a change to the CALM Meta Schema
+title: "[Schema Change] "
+labels: ["schema-change"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Schema changes are the contract between all CALM tools, so they need more context up front than a typical issue. Please fill out the sections below before opening a feature branch.
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What problem does this change solve? Why can't it be solved with existing schema constructs?
+      placeholder: |
+        When [triggering condition], I want to [motivation/goal], so I can [outcome].
+
+        Describe the problem clearly...
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Proposed Change
+      description: Describe the proposed change to the schema. Include the affected definitions and whether this is a minor (backward-compatible) or major (breaking) change.
+      placeholder: |
+        - Affected definitions:
+        - Minor or major change:
+        - Description of the change:
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples
+      description: Provide example CALM document snippets demonstrating the change, both before and after where applicable.
+      placeholder: |
+        ```json
+        // example document snippet
+        ```
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact on Existing Tooling
+      description: What downstream tooling (CLI, CALM Hub, VS Code extension, third-party tools) is affected by this change, and how?
+      placeholder: Describe the impact, or state "None identified" if not applicable...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other approaches did you consider, and why were they not chosen?
+      placeholder: Description of alternatives, or "None" if not applicable...
+    validations:
+      required: false
