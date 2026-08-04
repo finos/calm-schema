@@ -22,7 +22,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=26.0.0"
   },
   "scripts": {
     "test": "node --test tests/*.test.js",
