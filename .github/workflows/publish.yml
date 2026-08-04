@@ -1,0 +1,49 @@
+name: Publish to npm
+
+permissions:
+    contents: read
+    id-token: write
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: 'Version to publish (e.g. 1.2.0). Must match an existing v<version> tag.'
+                required: true
+                type: string
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Reject pre-release versions
+              run: |
+                  if [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                    echo "Publishing version ${{ inputs.version }}"
+                  else
+                    echo "::error::'${{ inputs.version }}' is not a plain major.minor.patch version (e.g. release candidates are not published to npm)."
+                    exit 1
+                  fi
+
+            - name: Checkout release tag
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+              with:
+                  ref: v${{ inputs.version }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+              with:
+                  node-version-file: '.nvmrc'
+                  registry-url: 'https://registry.npmjs.org'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run tests
+              run: npm test
+
+            - name: Set package version
+              run: npm pkg set version=${{ inputs.version }}
+
+            - name: Publish to npm
+              run: npm publish
