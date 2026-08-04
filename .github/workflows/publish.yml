@@ -1,0 +1,57 @@
+name: Publish to npm
+
+permissions:
+    contents: read
+    id-token: write
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: 'Schema version to publish (e.g. 1.2). Must match an existing v<version> tag.'
+                required: true
+                type: string
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Validate schema version
+              env:
+                  VERSION: ${{ inputs.version }}
+              run: |
+                  if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
+                    echo "Publishing schema version $VERSION"
+                  else
+                    echo "::error::'$VERSION' is not a plain major.minor schema version - release candidates (e.g. 1.0-rc1) are never published to npm."
+                    exit 1
+                  fi
+
+            - name: Checkout schema tag
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+              with:
+                  ref: v${{ inputs.version }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+              with:
+                  node-version-file: '.nvmrc'
+                  registry-url: 'https://registry.npmjs.org'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run tests
+              run: npm test
+
+            - name: Set npm package version
+              env:
+                  VERSION: ${{ inputs.version }}
+              # npm requires a full major.minor.patch version to publish at all; the CALM
+              # schema itself has no patch component, so this appends a fixed ".0" purely
+              # to satisfy npm's registry, without that patch number meaning anything to
+              # the schema's own versioning (which stays major.minor everywhere else).
+              run: npm pkg set version="$VERSION.0"
+
+            - name: Publish to npm
+              run: npm publish
