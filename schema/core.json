@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://calm.finos.org/release/1.0-rc1/meta/core.json",
+  "$id": "https://calm.finos.org/release/1.0-rc2/meta/core.json",
   "title": "Common Architecture Language Model (CALM) Vocab",
+  "type" : "object",
   "properties": {
     "nodes": {
       "type": "array",
@@ -33,7 +34,8 @@
         "type": "string"
       },
       "description": "External links to ADRs (Architecture Decision Records) or similar documents that provide context or decisions related to the architecture. These can be URLs or references to internal documentation."
-    }
+    },
+    "additionalProperties": false
   },
   "defs": {
     "node": {
@@ -63,16 +65,10 @@
           },
           "additionalProperties": false
         },
-        "data-classification": {
-          "$ref": "#/defs/data-classification"
-        },
-        "run-as": {
-          "type": "string"
-        },
         "interfaces": {
           "type": "array",
           "items": {
-            "oneOf": [
+            "anyOf": [
               { "$ref": "interface.json#/defs/interface-definition" },
               { "$ref": "interface.json#/defs/interface-type" }
             ]
@@ -165,15 +161,6 @@
       ],
       "additionalProperties": true
     },
-    "data-classification": {
-      "enum": [
-        "Public",
-        "Confidential",
-        "Highly Restricted",
-        "MNPI",
-        "PII"
-      ]
-    },
     "protocol": {
       "enum": [
         "HTTP",
@@ -212,10 +199,6 @@
     },
     "interacts-type": {
       "type": "object",
-      "required": [
-        "actor",
-        "nodes"
-      ],
       "properties": {
         "actor": {
           "type": "string"
@@ -227,7 +210,11 @@
             "type": "string"
           }
         }
-      }
+      },
+      "required": [
+        "actor",
+        "nodes"
+      ]
     },
     "connects-type": {
       "type": "object",
@@ -257,13 +244,13 @@
             "type": "string"
           }
         }
-      }
-    },
-    "composed-of-type": {
+      },
       "required": [
         "container",
         "nodes"
-      ],
+      ]
+    },
+    "composed-of-type": {
       "type": "object",
       "properties": {
         "container": {
@@ -276,7 +263,11 @@
             "type": "string"
           }
         }
-      }
+      },
+      "required": [
+        "container",
+        "nodes"
+      ]
     },
     "option-type": {
       "type": "array",
@@ -307,12 +298,6 @@
           "items": {
             "type": "string"
           }
-        },
-        "metadata": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         }
       },
       "required": [
@@ -322,10 +307,18 @@
       ]
     },
     "metadata": {
-      "type": "array",
-      "items": {
-        "type": "object"
-      }
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": true
+        }
+      ]
     }
   }
 }
