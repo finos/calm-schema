@@ -13,7 +13,7 @@
     "url": "https://github.com/finos/calm-schema/issues"
   },
   "files": [
-    "schema",
+    "schema/**/*.json",
     "CHANGELOG.md",
     "LICENSE",
     "LICENSE.spdx",
