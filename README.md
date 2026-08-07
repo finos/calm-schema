@@ -2,19 +2,34 @@
 
 # CALM Schema
 
-This repository holds the CALM Meta Schema — the JSON Schema definitions that describe the CALM
-(Common Architecture Language Model) document format — along with its documentation and validation
-test suite. The schema is the artefact that defines the contract between all CALM tools, including the
-CLI, CALM Hub, the VS Code extension, and any third-party tooling built against CALM.
+CALM (the Common Architecture Language Model) is a JSON Schema vocabulary for describing software
+architecture as data: the nodes that make up a system, the relationships between them, the interfaces
+they expose, the business flows that run across them, and the controls that govern them. A CALM document
+is a plain JSON file that validates against this schema, so it can be produced and consumed by tooling —
+generated from code, rendered as diagrams, checked in CI, or used to enforce architectural and compliance
+rules — rather than living only as a diagram in a slide deck.
 
-The `main` branch holds the current, unreleased state of the schema; there are no draft or release
-folders — individual changes are developed on feature branches and merged to `main` via pull request.
-Merging to `main` does not itself publish anything: it produces a release candidate that can accumulate
-further merged changes before a release is cut. Publishing to npm as
-[`@finos/calm-schema`](https://www.npmjs.com/package/@finos/calm-schema) is a separate, manually
-triggered step, so a schema version is only ever released deliberately — never as a side effect of
-merging a PR — and multiple changes can be bundled into a single release. Each release is tagged with a
-semantic version; previous versions remain available on npm and as git tags.
+* **Nodes** — architecture components (systems, services, databases, actors) with properties, interfaces,
+  and deployments
+* **Relationships** — connections between nodes (`interacts`, `connects`, `deployed-in`, `composed-of`)
+* **Flows** — business flows composed of ordered transitions across relationships, mapping business
+  processes onto technical components
+* **Controls** — security and compliance requirements attached to nodes, relationships, or flows
+* **Interfaces** — modular interface definitions, either built in or externally defined
+* **Metadata** — free-form annotations on any schema element
+
+## Using the schema
+
+The schema is published to npm as [`@finos/calm-schema`](https://www.npmjs.com/package/@finos/calm-schema):
+
+```sh
+npm install @finos/calm-schema
+```
+
+Each published version is immutable and corresponds to a git tag in this repository (e.g. `v1.2`). See
+[CHANGELOG.md](CHANGELOG.md) for what changed in each release. CALM tooling — including the
+[CLI](https://github.com/finos/architecture-as-code), CALM Hub, and the VS Code extension — depends on a
+specific published version of this package to validate CALM documents.
 
 ## Project repositories
 
@@ -29,6 +44,11 @@ known as CALM:
 
 ## Proposing a schema change
 
+Schema changes are developed on feature branches and merged to `main` via pull request; `main` always
+holds the current, unreleased state of the schema. Merging to `main` does not publish anything by
+itself — it produces a release candidate that can accumulate further merged changes before a release is
+deliberately cut and published to npm as a separate, manually triggered step.
+
 1. Open a GitHub Issue using the Schema Change Proposal template, describing the motivation, the
    proposed change, and the impact on existing tooling.
 2. Once agreed, develop the change on a feature branch alongside updated validation tests. CI runs the
@@ -36,9 +56,7 @@ known as CALM:
 3. Open a pull request to `main`. It requires approval from a member of the
    [calm-schema-governance](https://github.com/orgs/finos/teams/calm-schema-governance) team — see
    [CONTRIBUTING.md](CONTRIBUTING.md#review-and-approval).
-4. On merge, the change lands on `main` as part of the next release candidate. It is **not**
-   automatically published — `main` can accumulate several merged changes before a release is cut.
-5. When maintainers decide to cut a release, publishing to npm and tagging the release is a separate,
+4. When maintainers decide to cut a release, publishing to npm and tagging the release is a separate,
    manually triggered step, kept deliberately outside of the merge process to avoid publishing a schema
    version prematurely.
 
