@@ -1,0 +1,138 @@
+header:
+  schema-version: 2.2.0
+  last-updated: '2026-10-02'
+  last-reviewed: '2026-10-02'
+  url: https://raw.githubusercontent.com/finos/calm-schema/main/security-insights.yml
+  project-si-source: https://raw.githubusercontent.com/finos/architecture-as-code/main/security-insights.yml
+  comment: |
+    finos/calm-schema holds the CALM JSON Schema, one of the repositories of the
+    Architecture as Code (CALM) project. The project-level file is
+    project-si-source; the project section below repeats it for tools that read
+    only this repository.
+
+project:
+  name: Architecture as Code (CALM)
+  homepage: https://calm.finos.org
+  roadmap: https://roadmapper.rocketstack.co/view/finos/architecture-as-code/ffffff/24292f
+  administrators:
+    - name: rocketstack-matt
+      primary: true
+    - name: jpgough-ms
+      primary: false
+    - name: markscott-ms
+      primary: false
+  documentation:
+    quickstart-guide: https://calm.finos.org/tutorials/
+    detailed-guide: https://calm.finos.org/
+    design: https://calm.finos.org/core-concepts/
+    code-of-conduct: https://www.finos.org/code-of-conduct
+    support-policy: https://github.com/finos/architecture-as-code/blob/main/SUPPORT.md
+    signature-verification: https://github.com/finos/calm-schema/blob/main/SECURITY.md#verifying-release-integrity-and-authenticity
+  repositories:
+    - name: calm-schema
+      url: https://github.com/finos/calm-schema
+      comment: |
+        CALM JSON Schema, published to npm as @finos/calm-schema.
+    - name: architecture-as-code
+      url: https://github.com/finos/architecture-as-code
+      comment: |
+        CALM tooling: CLI, CALM Hub, CALM Server, VS Code extension and docs.
+    - name: calm-governance
+      url: https://github.com/finos/calm-governance
+      comment: |
+        Project-wide governance, maintainer roster and contribution guidelines.
+  vulnerability-reporting:
+    reports-accepted: true
+    bug-bounty-available: false
+    contact:
+      name: Architecture as Code Maintainers
+      primary: true
+    policy: https://github.com/finos/calm-schema/blob/main/SECURITY.md
+    comment: |
+      GitHub private vulnerability reporting is enabled on this repository;
+      use the "Report a vulnerability" action under the Security tab.
+
+repository:
+  url: https://github.com/finos/calm-schema
+  status: active
+  accepts-change-request: true
+  accepts-automated-change-request: true
+  core-team:
+    - name: rocketstack-matt
+      primary: true
+    - name: jpgough-ms
+      primary: false
+    - name: markscott-ms
+      primary: false
+    - name: LeighFinegold
+      primary: false
+  documentation:
+    contributing-guide: https://github.com/finos/calm-schema/blob/main/CONTRIBUTING.md
+    dependency-management-policy: https://github.com/finos/calm-schema/blob/main/SECURITY.md#dependency-and-code-scanning-policy
+    governance: https://github.com/finos/calm-governance/blob/main/GOVERNANCE.md
+    review-policy: https://github.com/finos/calm-schema/blob/main/CONTRIBUTING.md#review-and-approval
+    security-policy: https://github.com/finos/calm-schema/blob/main/SECURITY.md
+  license:
+    url: https://github.com/finos/calm-schema/blob/main/LICENSE
+    expression: Apache-2.0
+  release:
+    automated-pipeline: true
+    distribution-points:
+      - uri: https://www.npmjs.com/package/@finos/calm-schema
+        comment: npm package published by .github/workflows/publish.yml through npm trusted publishing.
+    attestations:
+      - name: npm provenance (SLSA) for @finos/calm-schema
+        location: https://registry.npmjs.org/-/npm/v1/attestations/@finos%2Fcalm-schema@1.2.0
+        predicate-uri: https://slsa.dev/provenance/v1
+        comment: |
+          Published by .github/workflows/publish.yml with SLSA provenance.
+          Verify with `npm audit signatures`.
+  security:
+    assessments:
+      self:
+        name: Threat model and attack surface analysis
+        date: '2026-10-02'
+        evidence: https://github.com/finos/architecture-as-code/blob/main/THREAT_MODEL.md
+        comment: |
+          Project-wide threat model and attack surface analysis. It covers the
+          CALM specification, which this repository publishes.
+    tools:
+      - name: GitHub Secret Scanning
+        type: secret-scanning
+        comment: |
+          GitHub secret scanning with push protection, enabled in the repository
+          security settings. The setting is visible only to repository admins, so
+          it is declared here for unprivileged assessments (OSPS-BR-07.01).
+        rulesets:
+          - default
+        integration:
+          adhoc: true
+          ci: true
+          release: false
+      - name: CodeQL
+        type: SAST
+        comment: .github/workflows/codeql.yml; runs on every pull request and weekly against main.
+        rulesets:
+          - default
+        integration:
+          adhoc: false
+          ci: true
+          release: false
+      - name: Dependency Review
+        type: SCA
+        comment: actions/dependency-review-action on every pull request; blocks known-vulnerable and known-malicious dependencies.
+        rulesets:
+          - fail-on-severity moderate
+        integration:
+          adhoc: false
+          ci: true
+          release: false
+      - name: Dependabot
+        type: SCA
+        comment: Security alerts and security update pull requests for npm and GitHub Actions.
+        rulesets:
+          - GitHub Advisory Database
+        integration:
+          adhoc: false
+          ci: true
+          release: false
