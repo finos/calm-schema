@@ -30,6 +30,29 @@ Issues and pull requests for the schema, its documentation and tests belong in t
 Governance matters — including changes to the Maintainer roster — belong in
 [finos/calm-governance](https://github.com/finos/calm-governance/issues).
 
+## Building and Testing
+
+### Building from source
+
+Use the Node version in `.nvmrc` (`nvm use`), then install and test from the repository root:
+
+```bash
+npm ci      # install the test dependencies from package-lock.json
+npm test    # check every schema is valid JSON, compiles and has a unique $id
+```
+
+The schema itself is JSON and needs no compilation. The `publish.yml` workflow runs the same commands before it publishes to npm.
+
+### When and how tests run
+
+- **Locally:** run `npm test` before you open a pull request.
+- **On every pull request and on `main`:** the CI workflow runs `npm test`. CodeQL and Dependency Review also run on every pull request; see [SECURITY.md](SECURITY.md) for the policy behind them.
+- **At release:** the publish workflow runs `npm test` against the release tag and publishes only if it passes.
+
+### Test policy
+
+Every change to a schema must keep `npm test` passing. A change that adds a new kind of schema check must add or update a test in `tests/` that exercises it. Reviewers ask for tests before they approve.
+
 ## Review and Approval
 
 All changes to this repository require approval from a member of the
