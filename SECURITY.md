@@ -29,7 +29,7 @@ The `dependency-review` SCA check must pass on every pull request and blocks the
 
 Critical and high severity vulnerabilities must be fixed within 7 days of being reported. Medium severity vulnerabilities must be fixed within 30 days. Low severity vulnerabilities must be fixed in the next scheduled release. A dependency whose license is incompatible with Apache-2.0 must be removed or replaced before the change is merged, so that only dependencies with an approved permissive license are used.
 
-All SCA findings above these thresholds must be addressed before any release of the schema, and the release is blocked until each finding is fixed or declared non-exploitable as described below. Before running the publish workflow, the releasing maintainer must confirm that no Dependabot alert above these thresholds is open.
+All SCA findings above these thresholds must be addressed before any release of the schema, and the release is blocked until each finding is fixed or declared non-exploitable as described below. Before running the publish workflow, the releasing maintainer must confirm that no Dependabot alert above these thresholds is open. The published package contains only the schema files and has no runtime dependencies.
 
 A finding may be suppressed only when a maintainer declares it non-exploitable for this project and dismisses the alert with a written justification recorded on the alert.
 
