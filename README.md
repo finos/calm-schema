@@ -95,6 +95,12 @@ in the project.
 | [CONTRIBUTING.md](https://github.com/finos/calm-governance/blob/main/CONTRIBUTING.md) | Project-wide contribution guidelines |
 | [CODE_OF_CONDUCT.md](https://github.com/finos/calm-governance/blob/main/CODE_OF_CONDUCT.md) | The Code of Conduct all participants are subject to |
 
+A contributor must be nominated and approved by a vote of the existing Maintainers before they are granted write access to this repository, as set out in [GOVERNANCE.md](https://github.com/finos/calm-governance/blob/main/GOVERNANCE.md#maintainer-qualifications).
+
+## Support
+
+Support is community-based and best-effort: ask in a GitHub issue in this repository. The project's [SUPPORT.md](https://github.com/finos/architecture-as-code/blob/main/SUPPORT.md) states which schema releases are supported and when a release stops receiving security updates. To report a vulnerability privately, follow [SECURITY.md](SECURITY.md), which also holds the dependency and code scanning policy and the instructions for verifying release integrity.
+
 ## License
 
 Copyright 2026 FINOS
