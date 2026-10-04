@@ -1,0 +1,131 @@
+{
+  "metadata": {
+    "name": "hardware-attested-agentic-execution-environment",
+    "version": "1.0.0",
+    "title": "Hardware-Attested Execution Environment for Agentic Financial Workflows",
+    "description": "FINOS reference architecture defining an isolated, hardware-attested execution boundary for autonomous AI agents executing financial clearing and transaction workloads with RFC 9110 HTTP 402 micro-metering and IETF SCITT transparency.",
+    "status": "proposed",
+    "authors": [
+      {
+        "name": "Corrente Applied Cryptography Group",
+        "organization": "Corrente Labs, Inc.",
+        "contact": "standards@correntelabs.com"
+      }
+    ],
+    "tags": [
+      "finos",
+      "calm",
+      "confidential-computing",
+      "ai-agents",
+      "attestation",
+      "x402",
+      "scitt"
+    ]
+  },
+  "nodes": [
+    {
+      "unique-id": "untrusted-cloud-host",
+      "node-type": "system",
+      "name": "Commodity Multi-Tenant Host",
+      "description": "Commodity multi-tenant cloud or on-premise virtualization host treated as zero-trust."
+    },
+    {
+      "unique-id": "hardware-enclave-boundary",
+      "node-type": "system",
+      "name": "Hardware-Enforced Silicon Trust Domain",
+      "description": "Isolated confidential virtual machine or trust domain enforced by CPU silicon (Intel TDX RTMRs / AMD SEV-SNP VMPCKs) with memory encryption."
+    },
+    {
+      "unique-id": "autonomous-financial-agent",
+      "node-type": "service",
+      "name": "Autonomous Financial Execution Agent",
+      "description": "Autonomous AI agent executing trading, rebalancing, or credit evaluation logic within the confidential enclave."
+    },
+    {
+      "unique-id": "spend-allowance-guard",
+      "node-type": "service",
+      "name": "Deterministic Spend Allowance Engine (x402)",
+      "description": "In-enclave policy gateway that intercepts external calls, enforces single-task and cumulative spend ceilings, and halts non-deterministic loops."
+    },
+    {
+      "unique-id": "transparency-notary",
+      "node-type": "service",
+      "name": "SCITT L1 Verifiable Transparency Ledger",
+      "description": "Immutable append-only transparency service recording cryptographically signed audit receipts for regulatory compliance."
+    },
+    {
+      "unique-id": "clearing-and-settlement-rail",
+      "node-type": "service",
+      "name": "Universal Financial Settlement Rails",
+      "description": "Multi-rail settlement layer executing atomic micropayments (EVM, XRPL, Algorand) upon verified policy clearance."
+    },
+    {
+      "unique-id": "compliance-auditor",
+      "node-type": "actor",
+      "name": "Regulatory & Internal Auditor",
+      "description": "Independent compliance officer or automated regulatory auditor verifying enclave attestation quotes and transaction receipts."
+    }
+  ],
+  "relationships": [
+    {
+      "unique-id": "rel-enclave-in-host",
+      "description": "Hardware enclave boundary is hosted within physical infrastructure while cryptographically isolated from hypervisor access.",
+      "relationship-type": {
+        "deployed-in": {
+          "container": "untrusted-cloud-host",
+          "nodes": ["hardware-enclave-boundary"]
+        }
+      }
+    },
+    {
+      "unique-id": "rel-agent-in-enclave",
+      "description": "Autonomous financial execution agent runs inside hardware-attested enclave boundary.",
+      "relationship-type": {
+        "deployed-in": {
+          "container": "hardware-enclave-boundary",
+          "nodes": ["autonomous-financial-agent", "spend-allowance-guard"]
+        }
+      }
+    },
+    {
+      "unique-id": "rel-agent-to-guard",
+      "description": "Agent routes all outbound API and payment transactions through the spend allowance guard via local IPC.",
+      "relationship-type": {
+        "connects": {
+          "source": { "node": "autonomous-financial-agent" },
+          "destination": { "node": "spend-allowance-guard" }
+        }
+      }
+    },
+    {
+      "unique-id": "rel-guard-to-rail",
+      "description": "Spend guard negotiates HTTP 402 challenge and settles authorization vouchers on settlement rails.",
+      "relationship-type": {
+        "connects": {
+          "source": { "node": "spend-allowance-guard" },
+          "destination": { "node": "clearing-and-settlement-rail" }
+        }
+      }
+    },
+    {
+      "unique-id": "rel-guard-to-notary",
+      "description": "Spend guard registers signed receipt and enclave attestation statement with SCITT transparency ledger.",
+      "relationship-type": {
+        "connects": {
+          "source": { "node": "spend-allowance-guard" },
+          "destination": { "node": "transparency-notary" }
+        }
+      }
+    },
+    {
+      "unique-id": "rel-auditor-to-notary",
+      "description": "Auditor inspects cryptographic audit logs, hardware attestation quotes, and settlement receipts.",
+      "relationship-type": {
+        "interacts": {
+          "actor": "compliance-auditor",
+          "nodes": ["transparency-notary"]
+        }
+      }
+    }
+  ]
+}
