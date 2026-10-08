@@ -37,7 +37,16 @@ CodeQL runs SAST on every pull request and weekly against `main`. Code scanning 
 
 ## Secrets and Credentials
 
-This repository stores no long-lived credentials. Releases are published to npm through npm trusted publishing: the publish workflow authenticates with a short-lived GitHub OIDC token, so there is no npm token to store, rotate or leak. Any secret added in future must be stored only as a GitHub Actions secret, scoped to the workflow that needs it, and rotated when a maintainer with access leaves the project or on any suspicion of exposure. GitHub secret scanning and push protection are enabled to stop secrets being committed.
+Releases are published to npm through npm trusted publishing: the publish workflow authenticates with a short-lived GitHub OIDC token, so there is no npm token to store, rotate or leak.
+
+The other release steps use two long-lived credentials. FINOS holds the key material. Both are stored only as GitHub Actions secrets, and only one workflow uses each of them. `publish.yml` passes them to that workflow.
+
+| Secrets | Workflow | Access |
+|---|---|---|
+| `AWS_S3_ACCESS_KEY`, `AWS_S3_SECRET_ACCESS_KEY`, `AWS_CLOUDFRONT_DISTRIBUTION_ID` | `publish-site.yml` | An IAM user that can only write and delete `release/*` and `interfaces/*` in the `calm.finos.org` bucket, and invalidate its CloudFront distribution |
+| `DISPATCH_APP_ID`, `DISPATCH_APP_PRIVATE_KEY` | `start-compatibility-tests.yml` | A GitHub App. The workflow requests a token for finos/architecture-as-code with only the Contents: write permission, which `repository_dispatch` needs |
+
+Any secret added in future must follow the same rules, and every secret must be rotated when a maintainer with access leaves the project or on any suspicion of exposure. GitHub secret scanning and push protection are enabled to stop secrets being committed.
 
 ## Verifying Release Integrity and Authenticity
 
@@ -48,5 +57,7 @@ npm audit signatures
 ```
 
 The command reports `verified attestations` when the registry signature and provenance attestation are valid. The *Provenance* panel on the package's npmjs.com version page shows the repository and workflow that built it.
+
+The files at `https://calm.finos.org/release/<version>/meta/` are published only by the `publish-site.yml` workflow, from the same release tags. They are identical to the schema files in the npm package of that version.
 
 Thank you for helping keep FINOS projects and their users secure.

@@ -31,6 +31,9 @@ Each published version is immutable and corresponds to a git tag in this reposit
 [CLI](https://github.com/finos/architecture-as-code), CALM Hub, and the VS Code extension — depends on a
 specific published version of this package to validate CALM documents.
 
+Each release is also served at the URL in its `$id`, for example
+`https://calm.finos.org/release/1.2/meta/calm.json`.
+
 ## Project repositories
 
 CALM Schema is one of three repositories that make up the FINOS Architecture as Code project, also
@@ -58,7 +61,10 @@ deliberately cut and published to npm as a separate, manually triggered step.
    [CONTRIBUTING.md](CONTRIBUTING.md#review-and-approval).
 4. When maintainers decide to cut a release, publishing to npm and tagging the release is a separate,
    manually triggered step, kept deliberately outside of the merge process to avoid publishing a schema
-   version prematurely.
+   version prematurely. The publish workflow publishes the tag to npm and to calm.finos.org. Then it
+   starts the [schema compatibility workflow](https://github.com/finos/architecture-as-code/actions/workflows/calm-schema-compatibility.yml)
+   in architecture-as-code, which tests every CALM tool against the new version and opens an issue
+   that names the tools that fail.
 
 ## Contributing
 For any questions, bugs or feature requests please open an [issue](https://github.com/finos/calm-schema/issues)
