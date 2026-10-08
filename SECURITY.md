@@ -49,4 +49,17 @@ npm audit signatures
 
 The command reports `verified attestations` when the registry signature and provenance attestation are valid. The *Provenance* panel on the package's npmjs.com version page shows the repository and workflow that built it.
 
+## CRA Escalation (For Maintainers)
+
+CRA stewardship: This project is supported under the Linux Foundation CRA stewardship framework. Security vulnerabilities should be reported through the mechanisms described in this file, which we will coordinate with our CRA steward. For actively exploited vulnerabilities and severe incidents that may require CRA escalation, please use the project's emergency security reporting mechanisms as appropriate. Read more at https://www.linuxfoundation.org/security .
+
+**Project maintainers MUST escalate** the issue to the LF steward at [steward@linuxfoundation.org](mailto:steward@linuxfoundation.org) if the project experiences either of the following:
+
+- **Actively exploited vulnerabilities:** a security vulnerability where the project has reliable evidence that a malicious actor has exploited it.
+- **Severe incident:** a security compromise of the project’s own IT infrastructure.
+
+Ordinary vulnerabilities with no evidence of exploitation are not CRA escalation events. Escalate those that are actively exploited.
+
+---
+
 Thank you for helping keep FINOS projects and their users secure.
