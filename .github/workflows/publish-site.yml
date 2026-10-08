@@ -1,0 +1,113 @@
+name: Publish to calm.finos.org
+
+# Publishes the schema of every v<major>.<minor> release tag to the URL in its $id,
+# https://calm.finos.org/release/<version>/meta/, and examples/interfaces/ on main to
+# https://calm.finos.org/interfaces/. The tags are immutable, so a run that republishes them
+# changes nothing.
+
+permissions:
+    contents: read
+
+on:
+    workflow_call:
+        inputs:
+            dry-run:
+                type: boolean
+                default: false
+        secrets:
+            AWS_S3_ACCESS_KEY:
+                required: true
+            AWS_S3_SECRET_ACCESS_KEY:
+                required: true
+            AWS_CLOUDFRONT_DISTRIBUTION_ID:
+                required: true
+    workflow_dispatch:
+        inputs:
+            dry-run:
+                description: 'Show the changes, but do not write to the bucket'
+                type: boolean
+                default: false
+    push:
+        branches:
+            - 'main'
+        paths:
+            - 'examples/interfaces/**'
+
+concurrency:
+    group: publish-site
+    cancel-in-progress: false
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            # The release files come from the tags. The interfaces come from main, also when
+            # the workflow runs from another branch.
+            - name: Checkout main with all tags
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+              with:
+                  ref: main
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - name: Build the site
+              run: |
+                  set -euo pipefail
+                  site="$RUNNER_TEMP/site"
+                  mkdir -p "$site/interfaces"
+                  cp -R examples/interfaces/. "$site/interfaces/"
+
+                  # Release candidates (v1.0-rc1) and drafts (draft-2025-03) are not published.
+                  mapfile -t tags < <(git tag --list 'v*' | grep -E '^v[0-9]+\.[0-9]+$')
+                  if (( ${#tags[@]} == 0 )); then
+                    echo "::error::No release tags found."
+                    exit 1
+                  fi
+                  for tag in "${tags[@]}"; do
+                    version="${tag#v}"
+                    meta="$site/release/$version/meta"
+                    mkdir -p "$meta"
+                    # schema/README.md is not published.
+                    git archive "$tag" -- 'schema/*.json' | tar -x -C "$meta" --strip-components=1
+
+                    for file in "$meta"/*.json; do
+                      expected="https://calm.finos.org/release/$version/meta/$(basename "$file")"
+                      actual="$(jq -r '."$id"' "$file")"
+                      if [[ "$actual" != "$expected" ]]; then
+                        echo "::error::$tag $(basename "$file") has \$id \"$actual\", not \"$expected\"."
+                        exit 1
+                      fi
+                    done
+                  done
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+                  aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
+                  aws-region: us-east-1
+
+            # Each release syncs only its own meta/ prefix, so that --delete never removes another
+            # version or the files that architecture-as-code published next to meta/.
+            - name: Sync to S3
+              env:
+                  BUCKET: ${{ vars.AWS_S3_BUCKET }}
+                  DRY_RUN: ${{ inputs.dry-run }}
+              run: |
+                  set -euo pipefail
+                  site="$RUNNER_TEMP/site"
+                  args=(--delete --no-progress)
+                  if [[ "$DRY_RUN" == true ]]; then
+                    args+=(--dryrun)
+                  fi
+                  for meta in "$site"/release/*/meta; do
+                    version="$(basename "$(dirname "$meta")")"
+                    aws s3 sync "$meta" "s3://$BUCKET/release/$version/meta" "${args[@]}"
+                  done
+                  aws s3 sync "$site/interfaces" "s3://$BUCKET/interfaces" "${args[@]}"
+
+            - name: Invalidate CloudFront cache
+              if: ${{ !inputs.dry-run }}
+              env:
+                  DISTRIBUTION_ID: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+              run: aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/release/*" "/interfaces/*"

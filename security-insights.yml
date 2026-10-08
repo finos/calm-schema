@@ -80,6 +80,8 @@ repository:
     distribution-points:
       - uri: https://www.npmjs.com/package/@finos/calm-schema
         comment: npm package published by .github/workflows/publish.yml through npm trusted publishing.
+      - uri: https://calm.finos.org/release/
+        comment: Each release schema at the URL in its $id, published by .github/workflows/publish-site.yml.
     attestations:
       - name: npm provenance (SLSA) for @finos/calm-schema
         location: https://registry.npmjs.org/-/npm/v1/attestations/@finos%2Fcalm-schema@1.2.0
