@@ -43,7 +43,7 @@ The other release steps use two long-lived credentials. FINOS holds the key mate
 
 | Secrets | Workflow | Access |
 |---|---|---|
-| `AWS_S3_ACCESS_KEY`, `AWS_S3_SECRET_ACCESS_KEY`, `AWS_CLOUDFRONT_DISTRIBUTION_ID` | `publish-site.yml` | An IAM user that can only write and delete `release/*` and `interfaces/*` in the `calm.finos.org` bucket, and invalidate its CloudFront distribution |
+| `AWS_S3_ACCESS_KEY`, `AWS_S3_SECRET_ACCESS_KEY`, `AWS_CLOUDFRONT_DISTRIBUTION_ID` | `publish-site.yml` | An IAM user that can only list the `calm.finos.org` bucket, write and delete `release/*` and `interfaces/*` in it, and invalidate its CloudFront distribution |
 | `DISPATCH_APP_ID`, `DISPATCH_APP_PRIVATE_KEY` | `start-compatibility-tests.yml` | A GitHub App. The workflow requests a token for finos/architecture-as-code with only the Contents: write permission, which `repository_dispatch` needs |
 
 Any secret added in future must follow the same rules, and every secret must be rotated when a maintainer with access leaves the project or on any suspicion of exposure. GitHub secret scanning and push protection are enabled to stop secrets being committed.
