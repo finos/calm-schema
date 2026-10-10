@@ -109,6 +109,7 @@ repository:
           adhoc: true
           ci: true
           release: false
+        results: {}
       - name: CodeQL
         type: SAST
         comment: .github/workflows/codeql.yml; runs on every pull request and weekly against main.
@@ -118,6 +119,7 @@ repository:
           adhoc: false
           ci: true
           release: false
+        results: {}
       - name: Dependency Review
         type: SCA
         comment: actions/dependency-review-action on every pull request; blocks known-vulnerable and known-malicious dependencies.
@@ -127,6 +129,7 @@ repository:
           adhoc: false
           ci: true
           release: false
+        results: {}
       - name: Dependabot
         type: SCA
         comment: Security alerts and security update pull requests for npm and GitHub Actions.
@@ -136,3 +139,4 @@ repository:
           adhoc: false
           ci: true
           release: false
+        results: {}
