@@ -1,8 +1,10 @@
-name: Publish to npm
+name: Publish a release
+
+# Publishes a release tag to npm, then to calm.finos.org, then starts the tool compatibility
+# tests in finos/architecture-as-code.
 
 permissions:
     contents: read
-    id-token: write
 
 on:
     workflow_dispatch:
@@ -15,6 +17,9 @@ on:
 jobs:
     publish:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
         steps:
             - name: Validate schema version
               env:
@@ -55,3 +60,20 @@ jobs:
 
             - name: Publish to npm
               run: npm publish
+
+    site:
+        needs: publish
+        uses: ./.github/workflows/publish-site.yml
+        secrets:
+            AWS_S3_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
+            AWS_S3_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
+            AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+
+    compatibility-tests:
+        needs: site
+        uses: ./.github/workflows/start-compatibility-tests.yml
+        with:
+            version: ${{ inputs.version }}.0
+        secrets:
+            DISPATCH_APP_ID: ${{ secrets.DISPATCH_APP_ID }}
+            DISPATCH_APP_PRIVATE_KEY: ${{ secrets.DISPATCH_APP_PRIVATE_KEY }}

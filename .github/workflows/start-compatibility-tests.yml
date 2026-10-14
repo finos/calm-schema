@@ -1,0 +1,59 @@
+name: Start the tool compatibility tests
+
+# Starts the schema compatibility workflow in finos/architecture-as-code. It tests every CALM tool
+# against an npm version of the schema, and opens an issue that names the tools that fail.
+# The GITHUB_TOKEN cannot start a workflow in another repository, so a GitHub App token does it.
+
+permissions:
+    contents: read
+
+on:
+    workflow_call:
+        inputs:
+            version:
+                type: string
+                required: true
+        secrets:
+            DISPATCH_APP_ID:
+                required: true
+            DISPATCH_APP_PRIVATE_KEY:
+                required: true
+    workflow_dispatch:
+        inputs:
+            version:
+                description: 'npm version to test, for example 1.2.0. It must be on npm.'
+                type: string
+                required: true
+
+jobs:
+    dispatch:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Validate the version
+              env:
+                  VERSION: ${{ inputs.version }}
+              run: |
+                  if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                    echo "::error::'$VERSION' is not an npm version such as 1.2.0."
+                    exit 1
+                  fi
+
+            - name: Create a GitHub App token
+              id: app-token
+              uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+              with:
+                  app-id: ${{ secrets.DISPATCH_APP_ID }}
+                  private-key: ${{ secrets.DISPATCH_APP_PRIVATE_KEY }}
+                  owner: finos
+                  repositories: architecture-as-code
+                  permission-contents: write
+
+            - name: Send the repository_dispatch event
+              env:
+                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
+                  VERSION: ${{ inputs.version }}
+              run: |
+                  gh api --method POST repos/finos/architecture-as-code/dispatches \
+                    -f event_type=calm-schema-published \
+                    -f "client_payload[version]=$VERSION"
+                  echo "Started the compatibility tests for $VERSION: https://github.com/finos/architecture-as-code/actions/workflows/calm-schema-compatibility.yml"
