@@ -1,6 +1,6 @@
 header:
   schema-version: 2.2.0
-  last-updated: '2026-10-02'
+  last-updated: '2026-10-14'
   last-reviewed: '2026-10-02'
   url: https://raw.githubusercontent.com/finos/calm-schema/main/security-insights.yml
   project-si-source: https://raw.githubusercontent.com/finos/architecture-as-code/main/security-insights.yml
@@ -109,6 +109,7 @@ repository:
           adhoc: true
           ci: true
           release: false
+        results: {}
       - name: CodeQL
         type: SAST
         comment: .github/workflows/codeql.yml; runs on every pull request and weekly against main.
@@ -118,6 +119,7 @@ repository:
           adhoc: false
           ci: true
           release: false
+        results: {}
       - name: Dependency Review
         type: SCA
         comment: actions/dependency-review-action on every pull request; blocks known-vulnerable and known-malicious dependencies.
@@ -127,6 +129,7 @@ repository:
           adhoc: false
           ci: true
           release: false
+        results: {}
       - name: Dependabot
         type: SCA
         comment: Security alerts and security update pull requests for npm and GitHub Actions.
@@ -136,3 +139,4 @@ repository:
           adhoc: false
           ci: true
           release: false
+        results: {}
