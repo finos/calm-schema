@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://calm.finos.org/interfaces/example/tcp-host-port",
+  "$id": "https://calm.finos.org/interfaces/example/tcp-host-port.json",
   "title": "TCP Host / Port Interface",
   "type": "object",
   "properties": {

@@ -1,5 +1,7 @@
 # Example interfaces
 
-This directory contains interface types that are considered examples and may not be as strongly defined as they could.
+Example interface types. They show the shape of a CALM interface definition and are not as strongly
+defined as a standardized interface would be. They may change without warning, so reference them
+only from examples and test fixtures, not from production architectures.
 
-References to them should only be made from within the `finos/architecture-as-code` repository examples as they may change without warning.
+Published at `https://calm.finos.org/interfaces/example/<name>.json`.
