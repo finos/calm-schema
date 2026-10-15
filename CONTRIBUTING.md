@@ -5,8 +5,8 @@ Thank you for your interest in contributing to the CALM Schema project.
 > **Project-wide guidance lives in [finos/calm-governance](https://github.com/finos/calm-governance).**
 > CALM Schema is one repository within the FINOS Architecture as Code project, also known as CALM. The
 > project's [governance policies](https://github.com/finos/calm-governance/blob/main/GOVERNANCE.md),
-> [contribution guidelines](https://github.com/finos/calm-governance/blob/main/CONTRIBUTING.md) (DCO
-> sign-off, raising issues, pull request etiquette, and the responsible use of AI coding assistants),
+> [contribution guidelines](https://github.com/finos/calm-governance/blob/main/CONTRIBUTING.md) (contribution
+> requirements, raising issues, pull request etiquette, and the responsible use of AI coding assistants),
 > [Code of Conduct](https://github.com/finos/calm-governance/blob/main/CODE_OF_CONDUCT.md), and
 > [Maintainer roster](https://github.com/finos/calm-governance/blob/main/MAINTAINERS.md) apply to every
 > repository in the project and are maintained there. This document covers what is specific to *this*
@@ -60,4 +60,4 @@ All changes to this repository require approval from a member of the
 they can be merged. Review considers correctness, backward compatibility, downstream impact on tooling
 that consumes the schema, and alignment with the project's direction.
 
-NOTE: Contributors must meet FINOS **contribution requirements** (DCO, CLA, or other coverage as applicable to this repository). Please read [FINOS Contribution Requirements](https://community.finos.org/docs/governance/Software-Projects/contribution-compliance-requirements) before opening pull requests.
+NOTE: All pull requests to this repository require a signed **CLA** via [EasyCLA](https://community.finos.org/docs/governance/Software-Projects/easycla). Please read [FINOS Contribution Requirements](https://community.finos.org/docs/governance/Software-Projects/contribution-compliance-requirements) before opening pull requests.
