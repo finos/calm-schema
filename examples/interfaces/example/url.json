@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://calm.finos.org/interfaces/example/url",
+  "$id": "https://calm.finos.org/interfaces/example/url.json",
   "title": "URL Interface",
   "type": "object",
   "properties": {

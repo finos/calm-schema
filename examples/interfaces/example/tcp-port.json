@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://calm.finos.org/interfaces/example/tcp-port",
+  "$id": "https://calm.finos.org/interfaces/example/tcp-port.json",
   "title": "TCP Port Interface",
   "description": "This interface defines a TCP port configuration for a service or application. It specifies the port number on which the service will accept connections.",
   "type": "object",

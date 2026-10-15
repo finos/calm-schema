@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://calm.finos.org/interfaces/example/container-image",
+  "$id": "https://calm.finos.org/interfaces/example/container-image.json",
   "title": "Container Image Interface",
   "type": "object",
   "properties": {
