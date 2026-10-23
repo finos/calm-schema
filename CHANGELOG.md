@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3
+
+CALM v1.3 is a minor revision of 1.2. It adds two optional properties to decorators. Every valid
+1.2 decorator is also valid in 1.3.
+
+### Decorator Schema Concepts
+
+* `target-type` - an optional array that names the types of CALM document (`architecture`,
+  `pattern`, `standard`, `control`) that the decorator can target. If it is omitted, the decorator
+  can target any type of document.
+* `$schema` - a decorator can declare the schema that it conforms to, for example a decorator
+  standard. In 1.2, a decorator that has `$schema` fails validation.
+
 ## 1.2
 
 CALM v1.2 builds on v1.1 to introduce architecture timelines and decorators.

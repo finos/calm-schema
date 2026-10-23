@@ -7,6 +7,10 @@
         "decorator": {
             "type": "object",
             "properties": {
+                "$schema": {
+                    "type": "string",
+                    "description": "URI of the schema that this decorator conforms to, for example a decorator standard"
+                },
                 "unique-id": {
                     "type": "string",
                     "description": "Unique identifier for this decorator"
@@ -14,6 +18,21 @@
                 "type": {
                     "type": "string",
                     "description": "Type of decorator - a free-form string identifying the decorator category"
+                },
+                "target-type": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "architecture",
+                            "pattern",
+                            "standard",
+                            "control"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "description": "Optional array restricting which types of CALM documents this decorator can target. If omitted, the decorator can target any document type."
                 },
                 "target": {
                     "type": "array",
