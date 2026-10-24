@@ -24,15 +24,12 @@
                     "items": {
                         "type": "string",
                         "enum": [
-                            "architecture",
-                            "pattern",
-                            "standard",
-                            "control"
+                            "architecture"
                         ]
                     },
                     "minItems": 1,
                     "uniqueItems": true,
-                    "description": "Optional array restricting which types of CALM documents this decorator can target. If omitted, the decorator can target any document type."
+                    "description": "Optional array restricting which types of CALM documents this decorator can target. The only type is architecture, because applies-to holds the unique-ids of architecture elements. If omitted, the decorator can target any document type."
                 },
                 "target": {
                     "type": "array",

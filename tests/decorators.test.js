@@ -28,13 +28,13 @@ test('a decorator can declare $schema and target-type', () => {
     const valid = validateDecorator({
         ...decorator,
         $schema: 'https://example.com/deployment.decorator.standard.json',
-        'target-type': ['architecture', 'pattern'],
+        'target-type': ['architecture'],
     });
     assert.ok(valid, JSON.stringify(validateDecorator.errors));
 });
 
-test('target-type accepts only CALM document types, at least one, with no duplicates', () => {
-    for (const targetType of [['deployment'], [], ['architecture', 'architecture']]) {
+test('target-type accepts only architecture, at least once, with no duplicates', () => {
+    for (const targetType of [['pattern'], ['standard'], ['control'], ['deployment'], [], ['architecture', 'architecture']]) {
         assert.equal(validateDecorator({ ...decorator, 'target-type': targetType }), false, JSON.stringify(targetType));
     }
 });
