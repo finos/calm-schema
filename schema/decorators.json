@@ -29,7 +29,7 @@
                     },
                     "minItems": 1,
                     "uniqueItems": true,
-                    "description": "Optional array restricting which types of CALM documents this decorator can target. The only type is architecture, because applies-to holds the unique-ids of architecture elements. If omitted, the decorator can target any document type."
+                    "description": "Optional array of the types of CALM document that this decorator can target. The only type is architecture, because applies-to holds the unique-ids of architecture elements."
                 },
                 "target": {
                     "type": "array",
@@ -37,7 +37,7 @@
                         "type": "string"
                     },
                     "minItems": 1,
-                    "description": "Array of file paths or URLs referencing the CALM documents (patterns, architectures, or controls) this decorator targets"
+                    "description": "Array of file paths or URLs referencing the CALM architectures this decorator targets"
                 },
                 "applies-to": {
                     "type": "array",
