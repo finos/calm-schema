@@ -30,7 +30,10 @@ It extends the [CALM 1.3 decorator](../../schema/decorators.json).
 | `data.engine` | no | What evaluated the control: `name` (required), `version`, `policy-sha256` |
 | `data.report-sha256`, `data.report-uri` | no | The full report of the engine, kept as evidence |
 
-A `not-met` evaluation must say why: `findings` is required and must not be empty.
+A `not-met` evaluation must say why: `findings` is required and must not be empty. A `met` or `not-applicable`
+evaluation has no `findings`.
+
+Each `-sha256` field is a SHA-256 digest in lowercase hex. No string field can be empty.
 
 ## Status
 

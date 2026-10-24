@@ -137,3 +137,29 @@ test('the control-evaluation standard requires a fully qualified requirement-url
     met.data.status = 'met';
     assert.ok(validate(met), JSON.stringify(validate.errors));
 });
+
+test('the control-evaluation standard allows findings only when not met', () => {
+    const example = readJson(path.join(standardsDir, 'control-evaluation', 'examples', 'ledger-change-not-met.decorator.json'));
+    const validate = ajv.getSchema(example.$schema);
+    for (const status of ['met', 'not-applicable']) {
+        const withFindings = structuredClone(example);
+        withFindings.data.status = status;
+        assert.equal(validate(withFindings), false, JSON.stringify(withFindings));
+    }
+});
+
+test('the control-evaluation standard rejects empty strings and uppercase digests', () => {
+    const example = readJson(path.join(standardsDir, 'control-evaluation', 'examples', 'ledger-change-not-met.decorator.json'));
+    const validate = ajv.getSchema(example.$schema);
+    const emptyControlId = structuredClone(example);
+    emptyControlId.data.control['control-id'] = '';
+    const emptyActor = structuredClone(example);
+    emptyActor.data.actors.reviewer = '';
+    const emptyCheck = structuredClone(example);
+    emptyCheck.data.findings[0].check = '';
+    const uppercaseDigest = structuredClone(example);
+    uppercaseDigest.data['report-sha256'] = example.data['report-sha256'].toUpperCase();
+    for (const invalid of [emptyControlId, emptyActor, emptyCheck, uppercaseDigest]) {
+        assert.equal(validate(invalid), false, JSON.stringify(invalid));
+    }
+});

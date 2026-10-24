@@ -31,7 +31,7 @@
                 "subject": "position-service-to-client-ledger",
                 "check": "human_approved",
                 "description": "A human approved this change",
-                "expression": "$$input.change.approval.approver is a non-empty string",
+                "expression": "$input.change.approval.approver is a non-empty string",
                 "cause": "absent"
             }
         ],
