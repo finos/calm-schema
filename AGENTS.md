@@ -7,7 +7,8 @@ The CALM Meta Schema: the JSON Schema documents that every CALM document validat
 | Path | Contents |
 |---|---|
 | `schema/*.json` | The current, unreleased schema, edited in place. No version folders. |
-| `tests/` | `npm test`: every schema is valid JSON, compiles as JSON Schema 2020-12, every `$ref` resolves, every `$id` is unique. |
+| `standards/<name>/` | Standards that extend a schema definition, with their examples. Each standard has its own version. See [Changing a standard](#changing-a-standard). |
+| `tests/` | `npm test`: every schema is valid JSON, compiles as JSON Schema 2020-12, every `$ref` resolves, every `$id` is unique. Every standard compiles, and every example of a standard is valid. |
 | `CHANGELOG.md` | One entry per release. |
 | `examples/interfaces/` | Interface definitions, published to `https://calm.finos.org/interfaces/`. See its README. |
 | `.github/workflows/` | `ci.yml` runs the tests. `publish.yml` releases: npm, then the site, then the compatibility tests in architecture-as-code. |
@@ -71,3 +72,23 @@ that names the tools that fail.
   Spectral rule there too. Say so in the proposal.
 - Write documentation in Simplified Technical English where possible, as concise as possible. Prefer
   tables to long lists of options.
+
+## Changing a standard
+
+A standard extends a schema definition. For example, the deployment decorator standard in
+`standards/deployment/` extends the decorator. Each standard has its own version, separate from the
+schema version. The npm package does not include the standards, and CALM Hub keeps its own copy as
+seed data.
+
+1. Edit `standards/<name>/` on a branch. Keep the `$id` of each standard as
+   `https://calm.finos.org/standards/<name>/<version>/<file>`, where `<version>` is the next release
+   of the standard. All the standards in one directory have the same version.
+2. A `$ref` to the schema names a release, for example `release/1.3/meta/decorators.json`.
+3. Add or update an example in `standards/<name>/examples/`. `npm test` validates each example
+   against the standard in its `$schema`.
+4. To release, tag `standard-<name>-v<major>.<minor>`, then run `publish-site.yml`. The schema
+   release that the standard references must be on calm.finos.org first, or in the same run.
+   `publish-site.yml` publishes only the JSON files at the top of `standards/<name>/`, not the
+   examples.
+
+The [Rules](#rules) for the schema also apply to a standard.
