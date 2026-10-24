@@ -34,6 +34,10 @@ specific published version of this package to validate CALM documents.
 Each release is also served at the URL in its `$id`, for example
 `https://calm.finos.org/release/1.2/meta/calm.json`.
 
+[`standards/`](standards) holds standards that extend the schema, for example the
+[deployment decorator standard](standards/deployment). Each standard has its own version and is served
+at `https://calm.finos.org/standards/<name>/<version>/`. The npm package does not include them.
+
 ## Project repositories
 
 CALM Schema is one of three repositories that make up the FINOS Architecture as Code project, also

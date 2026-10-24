@@ -1,9 +1,10 @@
 name: Publish to calm.finos.org
 
 # Publishes the schema of every v<major>.<minor> release tag to the URL in its $id,
-# https://calm.finos.org/release/<version>/meta/, and examples/interfaces/ on main to
-# https://calm.finos.org/interfaces/. The tags are immutable, so a run that republishes them
-# changes nothing.
+# https://calm.finos.org/release/<version>/meta/, the standards of every
+# standard-<name>-v<major>.<minor> tag to https://calm.finos.org/standards/<name>/<version>/,
+# and examples/interfaces/ on main to https://calm.finos.org/interfaces/. The tags are
+# immutable, so a run that republishes them changes nothing.
 
 permissions:
     contents: read
@@ -41,8 +42,8 @@ jobs:
     publish:
         runs-on: ubuntu-latest
         steps:
-            # The release files come from the tags. The interfaces come from main, also when
-            # the workflow runs from another branch.
+            # The release and standard files come from the tags. The interfaces come from main,
+            # also when the workflow runs from another branch.
             - name: Checkout main with all tags
               uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
               with:
@@ -80,6 +81,27 @@ jobs:
                     done
                   done
 
+                  # A standard has no tag until its first release. Its examples and README are not published.
+                  mapfile -t standard_tags < <(git tag --list 'standard-*' | grep -E '^standard-[a-z0-9-]+-v[0-9]+\.[0-9]+$')
+                  for tag in "${standard_tags[@]}"; do
+                    [[ "$tag" =~ ^standard-([a-z0-9-]+)-v([0-9]+\.[0-9]+)$ ]]
+                    name="${BASH_REMATCH[1]}"
+                    version="${BASH_REMATCH[2]}"
+                    dir="$site/standards/$name/$version"
+                    mkdir -p "$dir"
+                    # In a glob pathspec, * does not match /, so examples/ is not included.
+                    git archive "$tag" -- ":(glob)standards/$name/*.json" | tar -x -C "$dir" --strip-components=2
+
+                    for file in "$dir"/*.json; do
+                      expected="https://calm.finos.org/standards/$name/$version/$(basename "$file")"
+                      actual="$(jq -r '."$id"' "$file")"
+                      if [[ "$actual" != "$expected" ]]; then
+                        echo "::error::$tag $(basename "$file") has \$id \"$actual\", not \"$expected\"."
+                        exit 1
+                      fi
+                    done
+                  done
+
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6
               with:
@@ -87,8 +109,9 @@ jobs:
                   aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
                   aws-region: us-east-1
 
-            # Each release syncs only its own meta/ prefix, so that --delete never removes another
-            # version or the files that architecture-as-code published next to meta/.
+            # Each release syncs only its own meta/ prefix, and each standard only its own version, so
+            # that --delete never removes another version or the files that architecture-as-code
+            # published next to meta/.
             - name: Sync to S3
               env:
                   BUCKET: ${{ vars.AWS_S3_BUCKET }}
@@ -104,10 +127,14 @@ jobs:
                     version="$(basename "$(dirname "$meta")")"
                     aws s3 sync "$meta" "s3://$BUCKET/release/$version/meta" "${args[@]}"
                   done
+                  for dir in "$site"/standards/*/*; do
+                    [[ -d "$dir" ]] || continue
+                    aws s3 sync "$dir" "s3://$BUCKET/standards/${dir#"$site/standards/"}" "${args[@]}"
+                  done
                   aws s3 sync "$site/interfaces" "s3://$BUCKET/interfaces" "${args[@]}"
 
             - name: Invalidate CloudFront cache
               if: ${{ !inputs.dry-run }}
               env:
                   DISTRIBUTION_ID: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
-              run: aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/release/*" "/interfaces/*"
+              run: aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/release/*" "/standards/*" "/interfaces/*"
