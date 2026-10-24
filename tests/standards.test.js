@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -28,10 +29,36 @@ const standardNames = readdirSync(standardsDir, { withFileTypes: true })
 const standardFiles = standardNames.flatMap((name) => listJsonFiles(path.join(standardsDir, name)));
 const exampleFiles = standardNames.flatMap((name) => listJsonFiles(path.join(standardsDir, name, 'examples')));
 
+const releaseUrl = /https:\/\/calm\.finos\.org\/release\/([0-9]+\.[0-9]+)\/meta\//g;
+
+function releasesIn(schemas) {
+    return new Set(schemas.flatMap((schema) => [...JSON.stringify(schema).matchAll(releaseUrl)].map((match) => match[1])));
+}
+
+function git(...args) {
+    return execFileSync('git', args, { cwd: rootDir, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] });
+}
+
+// A standard keeps the schema release that it extends when schema/ moves on to the next release.
+function readReleaseFromTag(version) {
+    const tag = `v${version}`;
+    let files;
+    try {
+        files = git('ls-tree', '--name-only', tag, 'schema/').split('\n');
+    } catch {
+        throw new Error(`A standard refers to release ${version}, which is not in schema/, and there is no tag ${tag}. Run git fetch upstream --tags.`);
+    }
+    return files.filter((file) => file.endsWith('.json')).map((file) => JSON.parse(git('show', `${tag}:${file}`)));
+}
+
+const schemas = listJsonFiles(schemaDir).map(readJson);
+const standards = standardFiles.map(readJson);
+const releaseInProgress = releasesIn(schemas);
+const earlierReleases = [...releasesIn(standards)].filter((version) => !releaseInProgress.has(version));
+
 const ajv = new Ajv2020({ strict: false, allErrors: true });
 addFormats(ajv);
-for (const file of [...listJsonFiles(schemaDir), ...standardFiles]) {
-    const schema = readJson(file);
+for (const schema of [...schemas, ...earlierReleases.flatMap(readReleaseFromTag), ...standards]) {
     ajv.addSchema(schema, schema.$id);
 }
 

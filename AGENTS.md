@@ -83,7 +83,9 @@ seed data.
 1. Edit `standards/<name>/` on a branch. Keep the `$id` of each standard as
    `https://calm.finos.org/standards/<name>/<version>/<file>`, where `<version>` is the next release
    of the standard. All the standards in one directory have the same version.
-2. A `$ref` to the schema names a release, for example `release/1.3/meta/decorators.json`.
+2. A `$ref` to the schema names a release, for example `release/1.3/meta/decorators.json`. A
+   standard can stay on that release when `schema/` moves to the next one: `npm test` takes an
+   earlier release from its `v<major>.<minor>` tag. In a fork, run `git fetch upstream --tags`.
 3. Add or update an example in `standards/<name>/examples/`. `npm test` validates each example
    against the standard in its `$schema`.
 4. To release, tag `standard-<name>-v<major>.<minor>`, then run `publish-site.yml`. The schema
