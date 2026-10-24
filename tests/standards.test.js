@@ -108,3 +108,58 @@ test('the deployment standard requires target-type, the type deployment and a st
         assert.equal(validate(invalid), false, JSON.stringify(invalid));
     }
 });
+
+test('the control-evaluation standard requires a fully qualified requirement-url, and findings when not met', () => {
+    const example = readJson(path.join(standardsDir, 'control-evaluation', 'examples', 'ledger-change-not-met.decorator.json'));
+    const validate = ajv.getSchema(example.$schema);
+    const withoutTargetType = structuredClone(example);
+    delete withoutTargetType['target-type'];
+    const withoutFindings = structuredClone(example);
+    delete withoutFindings.data.findings;
+    const noFindings = structuredClone(example);
+    noFindings.data.findings = [];
+    const relativeRequirement = structuredClone(example);
+    relativeRequirement.data.control['requirement-url'] = '/calm/domains/sdlc/controls/code-review/requirement/versions/1.0.0';
+    const withoutStatus = structuredClone(example);
+    delete withoutStatus.data.status;
+    for (const invalid of [
+        withoutTargetType,
+        withoutFindings,
+        noFindings,
+        relativeRequirement,
+        withoutStatus,
+        { ...example, type: 'deployment' },
+        { ...example, data: { ...example.data, status: 'passed' } },
+    ]) {
+        assert.equal(validate(invalid), false, JSON.stringify(invalid));
+    }
+    const met = structuredClone(withoutFindings);
+    met.data.status = 'met';
+    assert.ok(validate(met), JSON.stringify(validate.errors));
+});
+
+test('the control-evaluation standard allows findings only when not met', () => {
+    const example = readJson(path.join(standardsDir, 'control-evaluation', 'examples', 'ledger-change-not-met.decorator.json'));
+    const validate = ajv.getSchema(example.$schema);
+    for (const status of ['met', 'not-applicable']) {
+        const withFindings = structuredClone(example);
+        withFindings.data.status = status;
+        assert.equal(validate(withFindings), false, JSON.stringify(withFindings));
+    }
+});
+
+test('the control-evaluation standard rejects empty strings and uppercase digests', () => {
+    const example = readJson(path.join(standardsDir, 'control-evaluation', 'examples', 'ledger-change-not-met.decorator.json'));
+    const validate = ajv.getSchema(example.$schema);
+    const emptyControlId = structuredClone(example);
+    emptyControlId.data.control['control-id'] = '';
+    const emptyActor = structuredClone(example);
+    emptyActor.data.actors.reviewer = '';
+    const emptyCheck = structuredClone(example);
+    emptyCheck.data.findings[0].check = '';
+    const uppercaseDigest = structuredClone(example);
+    uppercaseDigest.data['report-sha256'] = example.data['report-sha256'].toUpperCase();
+    for (const invalid of [emptyControlId, emptyActor, emptyCheck, uppercaseDigest]) {
+        assert.equal(validate(invalid), false, JSON.stringify(invalid));
+    }
+});

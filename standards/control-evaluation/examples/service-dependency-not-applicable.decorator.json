@@ -1,0 +1,28 @@
+{
+    "$schema": "https://calm.finos.org/standards/control-evaluation/1.0/control-evaluation.decorator.standard.json",
+    "unique-id": "eval-nightly-sdlc-prev-017",
+    "type": "control-evaluation",
+    "target": [
+        "/api/calm/namespaces/demo/architectures/1/versions/1-0-0"
+    ],
+    "target-type": [
+        "architecture"
+    ],
+    "applies-to": [
+        "trade-capture"
+    ],
+    "data": {
+        "control": {
+            "unique-id": "sdlc-prev-017-service-dependency",
+            "control-id": "SDLC-PREV-017",
+            "requirement-url": "https://hub.calm.finos.org/calm/domains/finos-sdlc-common-controls/controls/sdlc-prev-017-service-dependency/requirement/versions/1.0.0",
+            "attached-to": "trade-capture"
+        },
+        "status": "not-applicable",
+        "evaluated-at": "2026-11-04T02:00:00Z",
+        "engine": {
+            "name": "ergo",
+            "version": "d924f4d"
+        }
+    }
+}
