@@ -1,0 +1,42 @@
+{
+    "$schema": "https://calm.finos.org/standards/control-evaluation/1.0/control-evaluation.decorator.standard.json",
+    "unique-id": "eval-c0ffee1-client-ledger-human-approval-2",
+    "type": "control-evaluation",
+    "target": [
+        "/api/calm/namespaces/demo/architectures/1/versions/1-0-0"
+    ],
+    "target-type": [
+        "architecture"
+    ],
+    "applies-to": [
+        "position-service-to-client-ledger",
+        "position-service"
+    ],
+    "data": {
+        "control": {
+            "unique-id": "client-ledger-human-approval",
+            "control-id": "SDLC-PREV-001",
+            "requirement-url": "https://hub.calm.finos.org/calm/domains/finos-sdlc-common-controls/controls/sdlc-prev-001-code-review/requirement/versions/1.0.0",
+            "attached-to": "client-ledger"
+        },
+        "status": "met",
+        "evaluated-at": "2026-11-04T15:16:40Z",
+        "change": {
+            "commit": "c0ffee1a2b3c4d5e6f708192a3b4c5d6e7f80912",
+            "diff-sha256": "d1ff01d1ff01d1ff01d1ff01d1ff01d1ff01d1ff01d1ff01d1ff01d1ff01d1ff",
+            "spec": "SPEC-001"
+        },
+        "actors": {
+            "author": "author-agent",
+            "reviewer": "review-bot",
+            "approver": "alice"
+        },
+        "engine": {
+            "name": "ergo",
+            "version": "d924f4d",
+            "policy-sha256": "0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f9"
+        },
+        "report-sha256": "1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f809",
+        "report-uri": "https://github.com/example/repo/actions/runs/123456/artifacts/report.json"
+    }
+}
