@@ -18,23 +18,34 @@
         "config": {
           "type": "object",
           "description": "Inline configuration of how the control requirement schema is met"
+        },
+        "status": {
+          "enum": ["compliant", "non-compliant"],
+          "description": "Compliance state. Absent means compliant."
+        },
+        "adrs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "ADR references justifying this control's configuration or deviation"
         }
       },
       "required": [
         "requirement-url"
       ],
-      "oneOf": [
-        {
-          "required": [
-            "config-url"
-          ]
-        },
-        {
-          "required": [
-            "config"
-          ]
-        }
-      ]
+      "if": {
+        "properties": { "status": { "const": "non-compliant" } },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["adrs"],
+        "properties": { "adrs": { "type": "array", "minItems": 1 } }
+      },
+      "else": {
+        "oneOf": [
+          { "required": ["config-url"] },
+          { "required": ["config"] }
+        ]
+      }
     },
     "controls": {
       "type": "object",
