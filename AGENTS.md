@@ -7,8 +7,8 @@ The CALM Meta Schema: the JSON Schema documents that every CALM document validat
 | Path | Contents |
 |---|---|
 | `schema/*.json` | The current, unreleased schema, edited in place. No version folders. |
-| `standards/<name>/` | Standards that extend a schema definition, with their examples. Each standard has its own version. See [Changing a standard](#changing-a-standard). |
-| `tests/` | `npm test`: every schema is valid JSON, compiles as JSON Schema 2020-12, every `$ref` resolves, every `$id` is unique. Every standard compiles, and every example of a standard is valid. |
+| `standards/<name>/` | Standards that extend or use a schema definition, with their examples. Each standard has its own version. See [Changing a standard](#changing-a-standard). |
+| `tests/` | `npm test`: every schema is valid JSON, compiles as JSON Schema 2020-12, every `$ref` resolves, every `$id` is unique. Every standard compiles, and every example and published document of a standard is valid. |
 | `CHANGELOG.md` | One entry per release. |
 | `examples/interfaces/` | Interface definitions, published to `https://calm.finos.org/interfaces/`. See its README. |
 | `.github/workflows/` | `ci.yml` runs the tests. `publish.yml` releases: npm, then the site, then the compatibility tests in architecture-as-code. |
@@ -75,14 +75,16 @@ that names the tools that fail.
 
 ## Changing a standard
 
-A standard extends a schema definition. For example, the deployment decorator standard in
-`standards/deployment/` extends the decorator. Each standard has its own version, separate from the
-schema version. The npm package does not include the standards, and CALM Hub keeps its own copy as
-seed data.
+A standard extends or uses a schema definition. For example, the deployment decorator standard in
+`standards/deployment/` extends the decorator, and the C4 mapping standard in `standards/c4/` maps
+node types to C4 kinds. Each standard has its own version, separate from the schema version. The
+npm package does not include the standards, and CALM Hub keeps its own copy as seed data.
 
 1. Edit `standards/<name>/` on a branch. Keep the `$id` of each standard as
    `https://calm.finos.org/standards/<name>/<version>/<file>`, where `<version>` is the next release
-   of the standard. All the standards in one directory have the same version.
+   of the standard. All the standards in one directory have the same version. A document that a
+   standard publishes, such as the default C4 mapping, has a `$id` of the same form, and `npm test`
+   validates it against the standard in its `$schema`.
 2. A `$ref` to the schema names a release, for example `release/1.3/meta/decorators.json`. A
    standard can stay on that release when `schema/` moves to the next one: `npm test` takes an
    earlier release from its `v<major>.<minor>` tag. In a fork, run `git fetch upstream --tags`.

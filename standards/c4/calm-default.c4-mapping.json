@@ -1,0 +1,18 @@
+{
+    "$schema": "https://calm.finos.org/standards/c4/1.0/c4-mapping.json",
+    "$id": "https://calm.finos.org/standards/c4/1.0/calm-default.c4-mapping.json",
+    "unique-id": "calm-default-c4-mapping",
+    "description": "The default C4 mapping for the CALM node types. A tool uses it when no other mapping is set.",
+    "node-types": {
+        "actor": "person",
+        "system": "software-system",
+        "service": "container",
+        "database": "container",
+        "webclient": "container",
+        "data-asset": "container",
+        "ldap": "container",
+        "ecosystem": "enterprise-boundary",
+        "network": "deployment-node"
+    },
+    "nesting": "demote"
+}
