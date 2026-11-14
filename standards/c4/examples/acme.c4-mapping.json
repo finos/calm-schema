@@ -1,8 +1,8 @@
 {
-    "$schema": "https://calm.finos.org/standards/c4/1.0/c4-mapping.json",
+    "$schema": "https://calm.finos.org/standards/c4/1.1/c4-mapping.json",
     "unique-id": "acme-c4-mapping",
     "description": "The C4 mapping of the node types that Acme uses in addition to the CALM node types.",
-    "extends": "https://calm.finos.org/standards/c4/1.0/calm-default.c4-mapping.json",
+    "extends": "https://calm.finos.org/standards/c4/1.1/calm-default.c4-mapping.json",
     "node-types": {
         "aws:lambda": "container",
         "aws:rds": "container",

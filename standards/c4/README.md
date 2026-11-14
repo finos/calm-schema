@@ -4,7 +4,7 @@ This standard gives one set of rules to show a CALM architecture as a [C4 model]
 these rules, every CALM tool shows the same C4 model for the same architecture. An organisation can map its
 own node types to C4 kinds with a custom mapping.
 
-The standard does not change the CALM schema. It is published at `https://calm.finos.org/standards/c4/1.0/`.
+The standard does not change the CALM schema. It is published at `https://calm.finos.org/standards/c4/1.1/`.
 
 | File | Contents |
 | --- | --- |
@@ -21,7 +21,7 @@ The standard does not change the CALM schema. It is published at `https://calm.f
 | `node-types` | no | A map from a CALM `node-type` to a C4 kind, or to `{ "kind", "external" }` |
 | `nesting` | no | `demote` or `strict`. See [Nesting](#nesting). Default: the `nesting` of the mapping it extends, else `demote` |
 | `description` | no | What the mapping is for |
-| `$schema` | no | The schema of the document, `https://calm.finos.org/standards/c4/1.0/c4-mapping.json` |
+| `$schema` | no | The schema of the document, `https://calm.finos.org/standards/c4/1.1/c4-mapping.json` |
 | `$id` | no | The URL where the mapping is published, for a mapping that other mappings extend |
 
 A node type with `external: true` is outside the enterprise (rule E4). `external` is permitted only with the
@@ -92,7 +92,7 @@ parent or above it, for example a `service` inside a `service`. `nesting` sets w
 
 | `nesting` | The node shows as |
 | --- | --- |
-| `demote` | One level below its parent. A software system inside a software system is a container. A container inside a container is a component. Below a component, the tool reports a conflict |
+| `demote` | One level below its parent. A software system inside a software system is a container. A container inside a container is a component. A node below a component is a component, and the tool reports a conflict. Structural rule 2 does the same for an unmapped node |
 | `strict` | Its mapped kind. The tool reports a conflict |
 
 ### Conflicts
@@ -123,6 +123,15 @@ A node is external when any rule applies. No rule makes a node internal again.
 
 E3 applies only when the tool knows the CALM Hub namespace of the architecture, and only to CALM Hub URLs. Other
 references wait for [finos/calm-schema#27](https://github.com/finos/calm-schema/issues/27).
+
+## Versions
+
+| Version | Change |
+| --- | --- |
+| 1.1 | With `demote`, a mapped node below a component is a component. The schema does not change |
+| 1.0 | The first release |
+
+A mapping that names the 1.0 schema stays valid.
 
 ## Examples
 
