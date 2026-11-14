@@ -1,6 +1,6 @@
 {
-    "$schema": "https://calm.finos.org/standards/c4/1.0/c4-mapping.json",
-    "$id": "https://calm.finos.org/standards/c4/1.0/calm-default.c4-mapping.json",
+    "$schema": "https://calm.finos.org/standards/c4/1.1/c4-mapping.json",
+    "$id": "https://calm.finos.org/standards/c4/1.1/calm-default.c4-mapping.json",
     "unique-id": "calm-default-c4-mapping",
     "description": "The default C4 mapping for the CALM node types. A tool uses it when no other mapping is set.",
     "node-types": {
