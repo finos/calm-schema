@@ -8,7 +8,7 @@ The CALM Meta Schema: the JSON Schema documents that every CALM document validat
 |---|---|
 | `schema/*.json` | The current, unreleased schema, edited in place. No version folders. |
 | `standards/<name>/` | Standards that extend or use a schema definition, with their examples. Each standard has its own version. See [Changing a standard](#changing-a-standard). |
-| `tests/` | `npm test`: every schema is valid JSON, compiles as JSON Schema 2020-12, every `$ref` resolves, every `$id` is unique. Every standard compiles, and every example of a standard is valid. |
+| `tests/` | `npm test`: every schema is valid JSON, compiles as JSON Schema 2020-12, every `$ref` resolves, every `$id` is unique. Every standard compiles, and every example and published document of a standard is valid. |
 | `CHANGELOG.md` | One entry per release. |
 | `examples/interfaces/` | Interface definitions, published to `https://calm.finos.org/interfaces/`. See its README. |
 | `.github/workflows/` | `ci.yml` runs the tests. `publish.yml` releases: npm, then the site, then the compatibility tests in architecture-as-code. |

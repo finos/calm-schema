@@ -28,7 +28,7 @@ const standardNames = readdirSync(standardsDir, { withFileTypes: true })
 // publish-site.yml publishes only the JSON files at the top of each standard directory: the schemas,
 // and documents that conform to them, such as the default C4 mapping.
 const publishedFiles = standardNames.flatMap((name) => listJsonFiles(path.join(standardsDir, name)));
-const isJsonSchema = (file) => readJson(file).$schema === 'https://json-schema.org/draft/2020-12/schema';
+const isJsonSchema = (file) => readJson(file).$schema?.startsWith('https://json-schema.org/') ?? false;
 const standardFiles = publishedFiles.filter(isJsonSchema);
 const documentFiles = publishedFiles.filter((file) => !isJsonSchema(file));
 const exampleFiles = standardNames.flatMap((name) => listJsonFiles(path.join(standardsDir, name, 'examples')));
@@ -181,12 +181,30 @@ test('the C4 mapping standard rejects unknown kinds, fields and nesting modes', 
         withNodeTypes({ service: { kind: 'container', external: 'yes' } }),
         withNodeTypes({ service: { kind: 'container', technology: 'Java' } }),
         withNodeTypes({ '': 'container' }),
+        withNodeTypes({ ecosystem: { kind: 'enterprise-boundary', external: true } }),
+        withNodeTypes({ network: { kind: 'deployment-node', external: true } }),
+        withNodeTypes({ folder: { kind: 'hidden', external: true } }),
         { ...example, nesting: 'flatten' },
         { ...example, extends: 'calm-default.c4-mapping.json' },
         { ...example, 'node-type': {} },
     ]) {
         assert.equal(validate(invalid), false, JSON.stringify(invalid));
     }
+    for (const kind of ['person', 'software-system', 'container', 'component']) {
+        const valid = withNodeTypes({ vendor: { kind, external: true } });
+        assert.ok(validate(valid), JSON.stringify(validate.errors));
+    }
+    assert.ok(validate(withNodeTypes({ ecosystem: { kind: 'enterprise-boundary', external: false } })), JSON.stringify(validate.errors));
+});
+
+// A mapping that does not set nesting inherits it through extends, so the schema must not fill it in.
+test('the C4 mapping schema adds no nesting to a mapping that does not set it', () => {
+    const withDefaults = new Ajv2020({ strict: false, useDefaults: true });
+    addFormats(withDefaults);
+    const validate = withDefaults.compile(readJson(path.join(standardsDir, 'c4', 'c4-mapping.json')));
+    const mapping = readJson(path.join(standardsDir, 'c4', 'examples', 'acme.c4-mapping.json'));
+    assert.ok(validate(mapping), JSON.stringify(validate.errors));
+    assert.equal(mapping.nesting, undefined);
 });
 
 test('every C4 mapping example extends a mapping published in this repository', () => {

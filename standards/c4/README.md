@@ -19,11 +19,13 @@ The standard does not change the CALM schema. It is published at `https://calm.f
 | `unique-id` | yes | The identifier of the mapping |
 | `extends` | no | The URL of the mapping that this mapping extends, usually the default mapping |
 | `node-types` | no | A map from a CALM `node-type` to a C4 kind, or to `{ "kind", "external" }` |
-| `nesting` | no | `demote` or `strict`. See [Nesting](#nesting). Default `demote` |
+| `nesting` | no | `demote` or `strict`. See [Nesting](#nesting). Default: the `nesting` of the mapping it extends, else `demote` |
 | `description` | no | What the mapping is for |
+| `$schema` | no | The schema of the document, `https://calm.finos.org/standards/c4/1.0/c4-mapping.json` |
 | `$id` | no | The URL where the mapping is published, for a mapping that other mappings extend |
 
-A node type with `external: true` is outside the enterprise (rule E4).
+A node type with `external: true` is outside the enterprise (rule E4). `external` is permitted only with the
+kinds `person`, `software-system`, `container` and `component`.
 
 ### C4 kinds
 
@@ -35,7 +37,7 @@ A node type with `external: true` is outside the enterprise (rule E4).
 | `component` | A C4 component |
 | `deployment-node` | A C4 deployment node. It shows on deployment diagrams only |
 | `enterprise-boundary` | The boundary of the enterprise. See rule E2 |
-| `hidden` | The tool does not show the node or its relationships. The children of the node take its place in the hierarchy |
+| `hidden` | The tool does not show the node. Its `composed-of` children take its place in the hierarchy. The tool does not draw the `connects` or `interacts` relationships of the node, and reports each one as a conflict |
 
 ### The default mapping
 
@@ -52,7 +54,9 @@ A node type with `external: true` is outside the enterprise (rule E4).
 1. When no mapping is set, the tool uses the default mapping.
 2. When a mapping has `extends`, the tool loads that mapping first. The entries of the mapping replace the
    entries of the mapping it extends. A mapping that does not set `nesting` uses the `nesting` of the mapping it
-   extends. A chain of `extends` is permitted. A tool stops with an error on a cycle.
+   extends. When no mapping in the chain sets `nesting`, it is `demote`. A chain of `extends` is permitted.
+   A tool stops with an error on a cycle, and when it cannot load a mapping that `extends` names. It does not
+   use the default mapping in place of that mapping.
 3. A mapping with no `extends` replaces the default mapping.
 
 The tool gets the kind of a node from the mapping. When the mapping does not name the node type, the tool uses
@@ -66,7 +70,8 @@ A tool can show which kinds came from the structural rules. A team then sees whi
 These rules apply to a node whose type the mapping does not name.
 
 1. A top-level node with `composed-of` children is a software system.
-2. A child of a software system is a container. A child of a container is a component.
+2. A child of a software system is a container. A child of a container is a component. A child of a component
+   is a component, and the tool reports a conflict.
 3. A top-level node with no children is a software system.
 4. `deployed-in` gives deployment diagrams only. It does not set a C4 level.
 5. `details.detailed-architecture` links to the next level down: the architecture it names holds the
@@ -76,8 +81,9 @@ These rules apply to a node whose type the mapping does not name.
    enterprise when any of its containers is inside it.
 
 "Parent", "child" and "top-level" refer to `composed-of` relationships. For rules 1–3 and 6, a parent of kind
-`enterprise-boundary`, `deployment-node` or `hidden` does not count: the tool uses the nearest ancestor of
-another kind. A node with no such ancestor is top-level. The kind of a parent is its kind after all the rules.
+`enterprise-boundary`, `deployment-node`, `hidden` or `person` does not count: the tool uses the nearest ancestor
+of another kind. A node with no such ancestor is top-level. A node inside a `person` is also a conflict. The kind
+of a parent is its kind after all the rules.
 
 ## Nesting
 
@@ -96,9 +102,11 @@ A tool reports these conflicts. It can also show the architecture.
 | Conflict | Example |
 | --- | --- |
 | A person inside a software system, container or component | An `actor` in the `composed-of` of a `system` |
+| A node inside a person | A `service` in the `composed-of` of an `actor` |
 | A component with no container above it | A component at the top level, or directly inside a software system |
 | A software system, container or component inside a component | A `service` inside a `service` inside a `service` |
 | With `strict`, a mapped node at the level of its parent or above it | A `service` inside a `service` |
+| A `connects` or `interacts` relationship of a hidden node | A `connects` from a `service` to a node of a type mapped to `hidden` |
 
 ## External rules
 
@@ -109,7 +117,7 @@ C4 has two meanings of external. These rules keep them apart.
 | E1. Outside the system in scope | It is a software system other than the one the diagram is about. This is the C4 convention | Outside the boundary of the system in scope |
 | E2. Outside the enterprise | The architecture has a node of kind `enterprise-boundary` (`ecosystem` in the default mapping), and the node is not inside one through `composed-of`. With no such node, this rule does not apply | Outside the enterprise boundary, in grey |
 | E3. Owned by another team | Its `details.detailed-architecture` is a CALM Hub architecture in a namespace that is not this architecture's namespace or below it | As a software system outside the boundary of the system in scope, also when it is nested inside that system. The tool does not expand it in place |
-| E4. Mapped external | Its type has `external: true` in the mapping | As E2 |
+| E4. Mapped external | Its type has `external: true` in the mapping | As E2. When the architecture has no `enterprise-boundary` node, in grey with no enterprise boundary |
 
 A node is external when any rule applies. No rule makes a node internal again.
 

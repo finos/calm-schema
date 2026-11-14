@@ -49,13 +49,35 @@
                             "external": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "When true, every node of this type is outside the enterprise"
+                                "description": "When true, every node of this type is outside the enterprise. Permitted only with the kinds person, software-system, container and component"
                             }
                         },
                         "required": [
                             "kind"
                         ],
-                        "additionalProperties": false
+                        "additionalProperties": false,
+                        "if": {
+                            "properties": {
+                                "external": {
+                                    "const": true
+                                }
+                            },
+                            "required": [
+                                "external"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "kind": {
+                                    "enum": [
+                                        "person",
+                                        "software-system",
+                                        "container",
+                                        "component"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 ]
             }
@@ -65,8 +87,7 @@
                 "demote",
                 "strict"
             ],
-            "default": "demote",
-            "description": "What a tool does when a mapped node is at the level of its parent or above it. demote: the node shows one level below its parent, so a container inside a container shows as a component. strict: the node keeps its mapped kind and the tool reports a conflict"
+            "description": "What a tool does when a mapped node is at the level of its parent or above it. demote: the node shows one level below its parent, so a container inside a container shows as a component. strict: the node keeps its mapped kind and the tool reports a conflict. A mapping that does not set nesting uses the nesting of the mapping it extends. When no mapping in the chain sets it, nesting is demote"
         }
     },
     "required": [
