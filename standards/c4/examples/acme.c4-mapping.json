@@ -1,0 +1,17 @@
+{
+    "$schema": "https://calm.finos.org/standards/c4/1.0/c4-mapping.json",
+    "unique-id": "acme-c4-mapping",
+    "description": "The C4 mapping of the node types that Acme uses in addition to the CALM node types.",
+    "extends": "https://calm.finos.org/standards/c4/1.0/calm-default.c4-mapping.json",
+    "node-types": {
+        "aws:lambda": "container",
+        "aws:rds": "container",
+        "acme:module": "component",
+        "acme:vendor-platform": {
+            "kind": "software-system",
+            "external": true
+        },
+        "k8s:cluster": "deployment-node",
+        "acme:team-folder": "hidden"
+    }
+}

@@ -25,8 +25,12 @@ const standardNames = readdirSync(standardsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name);
 
-// publish-site.yml publishes only the JSON files at the top of each standard directory.
-const standardFiles = standardNames.flatMap((name) => listJsonFiles(path.join(standardsDir, name)));
+// publish-site.yml publishes only the JSON files at the top of each standard directory: the schemas,
+// and documents that conform to them, such as the default C4 mapping.
+const publishedFiles = standardNames.flatMap((name) => listJsonFiles(path.join(standardsDir, name)));
+const isJsonSchema = (file) => readJson(file).$schema === 'https://json-schema.org/draft/2020-12/schema';
+const standardFiles = publishedFiles.filter(isJsonSchema);
+const documentFiles = publishedFiles.filter((file) => !isJsonSchema(file));
 const exampleFiles = standardNames.flatMap((name) => listJsonFiles(path.join(standardsDir, name, 'examples')));
 
 const releaseUrl = /https:\/\/calm\.finos\.org\/release\/([0-9]+\.[0-9]+)\/meta\//g;
@@ -66,7 +70,7 @@ for (const schema of [...schemas, ...earlierReleases.flatMap(readReleaseFromTag)
 test('every standard has a $id that is its URL on calm.finos.org', () => {
     assert.ok(standardFiles.length > 0, 'no standards found');
     const versions = new Map();
-    for (const file of standardFiles) {
+    for (const file of publishedFiles) {
         const name = path.basename(path.dirname(file));
         const match = readJson(file).$id?.match(/^https:\/\/calm\.finos\.org\/standards\/([^/]+)\/([0-9]+\.[0-9]+)\/([^/]+)$/);
         assert.ok(match, `${file} has no $id of the form https://calm.finos.org/standards/<name>/<major>.<minor>/<file>`);
@@ -82,9 +86,9 @@ test('every standard compiles and all $refs resolve', () => {
     }
 });
 
-test('every example is valid against the standard in its $schema', () => {
+test('every example and published document is valid against the standard in its $schema', () => {
     assert.ok(exampleFiles.length > 0, 'no examples found');
-    for (const file of exampleFiles) {
+    for (const file of [...exampleFiles, ...documentFiles]) {
         const example = readJson(file);
         const validate = ajv.getSchema(example.$schema);
         assert.ok(validate, `${file} has $schema ${example.$schema}, which is not a standard in this repository`);
@@ -161,5 +165,34 @@ test('the control-evaluation standard rejects empty strings and uppercase digest
     uppercaseDigest.data['report-sha256'] = example.data['report-sha256'].toUpperCase();
     for (const invalid of [emptyControlId, emptyActor, emptyCheck, uppercaseDigest]) {
         assert.equal(validate(invalid), false, JSON.stringify(invalid));
+    }
+});
+
+test('the C4 mapping standard rejects unknown kinds, fields and nesting modes', () => {
+    const example = readJson(path.join(standardsDir, 'c4', 'examples', 'acme.c4-mapping.json'));
+    const validate = ajv.getSchema(example.$schema);
+    const withoutUniqueId = structuredClone(example);
+    delete withoutUniqueId['unique-id'];
+    const withNodeTypes = (nodeTypes) => ({ ...example, 'node-types': nodeTypes });
+    for (const invalid of [
+        withoutUniqueId,
+        withNodeTypes({ service: 'system' }),
+        withNodeTypes({ service: { external: true } }),
+        withNodeTypes({ service: { kind: 'container', external: 'yes' } }),
+        withNodeTypes({ service: { kind: 'container', technology: 'Java' } }),
+        withNodeTypes({ '': 'container' }),
+        { ...example, nesting: 'flatten' },
+        { ...example, extends: 'calm-default.c4-mapping.json' },
+        { ...example, 'node-type': {} },
+    ]) {
+        assert.equal(validate(invalid), false, JSON.stringify(invalid));
+    }
+});
+
+test('every C4 mapping example extends a mapping published in this repository', () => {
+    const published = new Set(documentFiles.map((file) => readJson(file).$id));
+    for (const file of listJsonFiles(path.join(standardsDir, 'c4', 'examples'))) {
+        const { extends: parent } = readJson(file);
+        assert.ok(parent === undefined || published.has(parent), `${file} extends ${parent}, which is not published here`);
     }
 });
