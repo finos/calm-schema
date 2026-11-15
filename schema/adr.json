@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://calm.finos.org/release/1.3/meta/adr.json",
+  "title": "CALM Architecture Decision Record",
+  "description": "An Architecture Decision Record (https://adr.github.io/). Formalizes the ADR format that CALM Hub stores.",
+  "type": "object",
+  "properties": {
+    "unique-id": {
+      "type": "string",
+      "description": "Optional local identifier. CALM Hub ignores it and addresses ADRs by slug."
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$",
+      "description": "Immutable, human-readable identifier assigned by CALM Hub on create"
+    },
+    "title": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "proposed",
+        "accepted",
+        "superseded",
+        "rejected",
+        "deprecated"
+      ]
+    },
+    "decision-date": {
+      "type": "string",
+      "format": "date"
+    },
+    "requesters": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approvers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "context-and-problem-statement": {
+      "type": "string"
+    },
+    "decision-drivers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "considered-options": {
+      "type": "array",
+      "items": {
+        "$ref": "#/defs/option"
+      }
+    },
+    "decision-outcome": {
+      "$ref": "#/defs/decision"
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/defs/link"
+      }
+    }
+  },
+  "required": [
+    "title",
+    "status",
+    "context-and-problem-statement"
+  ],
+  "defs": {
+    "option": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "positive-consequences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "negative-consequences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "description"
+      ]
+    },
+    "decision": {
+      "type": "object",
+      "properties": {
+        "chosen-option": {
+          "type": "string",
+          "description": "The name of an entry in considered-options"
+        },
+        "rationale": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "chosen-option",
+        "rationale"
+      ]
+    },
+    "link": {
+      "type": "object",
+      "properties": {
+        "rel": {
+          "type": "string",
+          "description": "Relationship of the linked resource, e.g. \"justifies\" for the control the ADR justifies"
+        },
+        "href": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rel",
+        "href"
+      ]
+    }
+  }
+}
