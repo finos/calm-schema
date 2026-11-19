@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.4
+
+CALM v1.4 is a minor revision of 1.3. A decorator can target a flow document, and a flow document can name
+its architecture. Every valid 1.3 architecture and decorator is also valid in 1.4.
+
+### Decorator Schema Concepts
+
+* `target-type` - adds `flow`. A decorator with `["flow"]` targets flow documents. `applies-to` then holds
+  the flow `unique-id` and the ids of the architecture elements that the flow names.
+
+### Flow Schema Concepts
+
+* Flow document - the root of `flow.json` now validates a flow in a document of its own (`defs/flow-document`).
+  It has the properties of `defs/flow`, and optional `$schema`, `$id` and `architecture-url`. In 1.3 the root
+  had no definition, so any JSON passed. `defs/flow`, for flows embedded in an architecture, does not change.
+* `architecture-url` - the URL or path of the architecture whose relationships the transitions name. A URL with
+  a version resolves to that version. A URL with no version resolves to the latest version.
+
 ## 1.3
 
 CALM v1.3 is a minor revision of 1.2. It adds two optional properties to decorators. Every valid

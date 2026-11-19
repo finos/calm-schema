@@ -33,8 +33,11 @@ test('a decorator can declare $schema and target-type', () => {
     assert.ok(valid, JSON.stringify(validateDecorator.errors));
 });
 
-test('target-type accepts only architecture, at least once, with no duplicates', () => {
-    for (const targetType of [['pattern'], ['standard'], ['control'], ['deployment'], [], ['architecture', 'architecture']]) {
+test('target-type accepts architecture and flow, at least once, with no duplicates', () => {
+    for (const targetType of [['architecture'], ['flow'], ['architecture', 'flow']]) {
+        assert.ok(validateDecorator({ ...decorator, 'target-type': targetType }), JSON.stringify(validateDecorator.errors));
+    }
+    for (const targetType of [['pattern'], ['standard'], ['control'], ['deployment'], [], ['flow', 'flow']]) {
         assert.equal(validateDecorator({ ...decorator, 'target-type': targetType }), false, JSON.stringify(targetType));
     }
 });
