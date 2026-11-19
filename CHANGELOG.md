@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4
+
+### Core Schema Concepts
+
+* `core.json` no longer declares a property named `additionalProperties`. The line did not close the
+  root object, so validation does not change. A closed root would reject the keywords of a pattern,
+  because `calm.json` applies `core.json` to patterns.
+
 ## 1.3
 
 CALM v1.3 is a minor revision of 1.2. It adds two optional properties to decorators. Every valid
