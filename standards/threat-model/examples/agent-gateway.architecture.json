@@ -1,0 +1,143 @@
+{
+    "$schema": "https://calm.finos.org/release/1.3/meta/calm.json",
+    "title": "Agent Gateway",
+    "description": "A slice of the FINOS multi-agent reference architecture: an orchestrator sends a request through the agent gateway, which finds an agent in the registry and routes the request to it.",
+    "nodes": [
+        {
+            "unique-id": "orchestrator",
+            "node-type": "service",
+            "name": "Orchestrator",
+            "description": "Supervisor agent that plans a task and sends requests to other agents"
+        },
+        {
+            "unique-id": "agent-platform",
+            "node-type": "system",
+            "name": "Agent Platform",
+            "description": "Runtime platform that hosts the gateway, the registry and the agents"
+        },
+        {
+            "unique-id": "agent-gateway",
+            "node-type": "service",
+            "name": "Agent Gateway",
+            "description": "Authenticates callers, applies guardrail policy and routes each request to a registered agent"
+        },
+        {
+            "unique-id": "agent-registry",
+            "node-type": "database",
+            "name": "Agent Registry",
+            "description": "Holds the agents that the gateway can route to, with their skills and trust level",
+            "controls": {
+                "C9": {
+                    "description": "Log all critical changes to a centralised, write-once, read-many (WORM) system",
+                    "requirements": [
+                        {
+                            "requirement-url": "https://calm.finos.org/release/1.3/meta/control-requirement.json",
+                            "config": {
+                                "control-id": "C9",
+                                "name": "WORM audit log",
+                                "description": "Log all critical changes to a centralised, write-once, read-many (WORM) system"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "unique-id": "research-agent",
+            "node-type": "service",
+            "name": "Research Agent",
+            "description": "Worker agent that answers research requests"
+        }
+    ],
+    "relationships": [
+        {
+            "unique-id": "orchestrator-to-agent-gateway",
+            "description": "The orchestrator sends agent requests to the gateway",
+            "relationship-type": {
+                "connects": {
+                    "source": {
+                        "node": "orchestrator"
+                    },
+                    "destination": {
+                        "node": "agent-gateway"
+                    }
+                }
+            },
+            "protocol": "HTTPS"
+        },
+        {
+            "unique-id": "agent-gateway-to-agent-registry",
+            "description": "The gateway looks up the agent for a request",
+            "relationship-type": {
+                "connects": {
+                    "source": {
+                        "node": "agent-gateway"
+                    },
+                    "destination": {
+                        "node": "agent-registry"
+                    }
+                }
+            },
+            "protocol": "HTTPS"
+        },
+        {
+            "unique-id": "agent-gateway-to-research-agent",
+            "description": "The gateway routes the request to the research agent",
+            "relationship-type": {
+                "connects": {
+                    "source": {
+                        "node": "agent-gateway"
+                    },
+                    "destination": {
+                        "node": "research-agent"
+                    }
+                }
+            },
+            "protocol": "mTLS"
+        },
+        {
+            "unique-id": "agent-platform-composed-of",
+            "description": "The agent platform hosts the gateway, the registry and the research agent",
+            "relationship-type": {
+                "composed-of": {
+                    "container": "agent-platform",
+                    "nodes": [
+                        "agent-gateway",
+                        "agent-registry",
+                        "research-agent"
+                    ]
+                }
+            }
+        }
+    ],
+    "flows": [
+        {
+            "unique-id": "flow-route-agent-request",
+            "name": "Route Agent Request",
+            "description": "The orchestrator sends a request. The gateway finds the agent in the registry, routes the request to it and returns the result.",
+            "transitions": [
+                {
+                    "relationship-unique-id": "orchestrator-to-agent-gateway",
+                    "sequence-number": 1,
+                    "description": "Send agent request"
+                },
+                {
+                    "relationship-unique-id": "agent-gateway-to-agent-registry",
+                    "sequence-number": 2,
+                    "description": "Look up the agent"
+                },
+                {
+                    "relationship-unique-id": "agent-gateway-to-research-agent",
+                    "sequence-number": 3,
+                    "description": "Route the request to the agent"
+                },
+                {
+                    "relationship-unique-id": "orchestrator-to-agent-gateway",
+                    "sequence-number": 4,
+                    "description": "Return the result",
+                    "direction": "destination-to-source"
+                }
+            ]
+        }
+    ]
+}

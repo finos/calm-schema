@@ -214,3 +214,147 @@ test('every C4 mapping example extends a mapping published in this repository', 
         assert.ok(parent === undefined || published.has(parent), `${file} extends ${parent}, which is not published here`);
     }
 });
+
+const threatModelDir = path.join(standardsDir, 'threat-model', 'examples');
+
+function threatModelExample(file) {
+    const example = readJson(path.join(threatModelDir, file));
+    return { example, validate: ajv.getSchema(example.$schema) };
+}
+
+test('the threat-model standard requires target-type, a flow, a methodology, an assessment date and threats', () => {
+    const { example, validate } = threatModelExample('route-agent-request.threat-model.decorator.json');
+    const without = (mutate) => {
+        const copy = structuredClone(example);
+        mutate(copy);
+        return copy;
+    };
+    for (const invalid of [
+        without((d) => delete d['target-type']),
+        without((d) => delete d.data.flow),
+        without((d) => delete d.data.methodology),
+        without((d) => delete d.data['assessed-on']),
+        without((d) => delete d.data.threats),
+        without((d) => delete d.data['trust-boundaries'][0].elements),
+        without((d) => (d.data['trust-boundaries'][0].elements = [])),
+        without((d) => delete d.data.threats[0]['applies-to']),
+        without((d) => (d.data.threats[0].status = 'open')),
+        without((d) => (d.data.threats[0].likelihood = 'severe')),
+        without((d) => (d.data['assessed-on'] = '18/11/2026')),
+        { ...example, 'target-type': ['pattern'] },
+        { ...example, type: 'review' },
+    ]) {
+        assert.equal(validate(invalid), false, JSON.stringify(invalid));
+    }
+    for (const valid of [
+        without((d) => (d.data.threats = [])),
+        without((d) => (d.data.threats[0]['firm-risk-id'] = 'RISK-1042')),
+        without((d) => (d.data.threats[0].mitigations[0]['firm-owner'] = 'platform-team')),
+        without((d) => delete d.data['trust-boundaries']),
+    ]) {
+        assert.ok(validate(valid), JSON.stringify(validate.errors));
+    }
+});
+
+test('the threat-model standard checks what each status needs', () => {
+    const { example, validate } = threatModelExample('submit-payment.stride.threat-model.decorator.json');
+    const threat = (id, mutate) => {
+        const copy = structuredClone(example);
+        mutate(copy.data.threats.find((t) => t['unique-id'] === id));
+        return copy;
+    };
+    for (const invalid of [
+        threat('t-token-replay', (t) => delete t.mitigations),
+        threat('t-token-replay', (t) => (t.mitigations = [])),
+        threat('t-bola', (t) => delete t.mitigations),
+        threat('t-token-replay', (t) => (t.mitigations[0].state = 'planned')),
+        threat('t-no-audit', (t) => delete t['residual-risk']),
+        threat('t-no-audit', (t) => delete t['residual-risk']['accepted-by']),
+        threat('t-no-audit', (t) => delete t.justification),
+        threat('t-no-audit', (t) => {
+            t.status = 'transferred';
+            delete t['residual-risk'];
+        }),
+        threat('t-submit-flood', (t) => (t.status = 'not-applicable')),
+    ]) {
+        assert.equal(validate(invalid), false, JSON.stringify(invalid));
+    }
+    for (const valid of [
+        threat('t-submit-flood', (t) => delete t.mitigations),
+        threat('t-submit-flood', (t) => {
+            t.status = 'not-applicable';
+            t.justification = 'The gateway is not reachable from the internet.';
+        }),
+    ]) {
+        assert.ok(validate(valid), JSON.stringify(validate.errors));
+    }
+});
+
+test('the STRIDE standard fixes the methodology and needs a STRIDE classification', () => {
+    const { example, validate } = threatModelExample('submit-payment.stride.threat-model.decorator.json');
+    const first = (mutate) => {
+        const copy = structuredClone(example);
+        mutate(copy.data.threats[0], copy);
+        return copy;
+    };
+    for (const invalid of [
+        first((t, d) => (d.data.methodology = 'PASTA')),
+        first((t) => delete t.classification),
+        first((t) => (t.classification = [{ scheme: 'CWE', value: 'CWE-294' }])),
+        first((t) => (t.classification = [{ scheme: 'STRIDE', value: 'Spoofing' }])),
+        first((t) => t.classification.push({ scheme: 'STRIDE', value: 'phishing' })),
+    ]) {
+        assert.equal(validate(invalid), false, JSON.stringify(invalid));
+    }
+    assert.ok(validate(first((t) => t.classification.push({ scheme: 'MITRE-ATTACK', value: 'T1550' }))), JSON.stringify(validate.errors));
+});
+
+test('the threat-model standard rejects empty strings and duplicate ids', () => {
+    const { example, validate } = threatModelExample('submit-payment.stride.threat-model.decorator.json');
+    const changed = (mutate) => {
+        const copy = structuredClone(example);
+        mutate(copy.data);
+        return copy;
+    };
+    for (const invalid of [
+        changed((d) => (d.flow = '')),
+        changed((d) => (d['trust-boundaries'][0].elements = [''])),
+        changed((d) => (d.threats[0].mitigations[0].control = '')),
+        changed((d) => (d.threats[0]['applies-to'] = ['api-gateway', 'api-gateway'])),
+        changed((d) => (d.threats[0]['sequence-numbers'] = [1, 1])),
+    ]) {
+        assert.equal(validate(invalid), false, JSON.stringify(invalid));
+    }
+});
+
+// JSON Schema cannot compare a decorator with its target, so this checks the rules that the README gives tools.
+test('every threat-model example names the flow, elements and sequence numbers of the architecture it targets', () => {
+    const decorators = listJsonFiles(threatModelDir).map(readJson).filter((doc) => doc.type === 'threat-model');
+    assert.ok(decorators.length > 0, 'no threat-model examples found');
+    for (const decorator of decorators) {
+        const name = decorator['unique-id'];
+        const architecture = readJson(path.join(threatModelDir, decorator.target[0]));
+        const elementIds = new Set([...architecture.nodes, ...architecture.relationships].map((e) => e['unique-id']));
+        const flow = architecture.flows?.find((f) => f['unique-id'] === decorator.data.flow);
+        assert.ok(flow, `${name}: flow ${decorator.data.flow} is not in the flows of ${decorator.target[0]}`);
+        const sequenceNumbers = new Set(flow.transitions.map((t) => t['sequence-number']));
+
+        const boundaries = decorator.data['trust-boundaries'] ?? [];
+        const named = [
+            ...boundaries.flatMap((b) => b.elements),
+            ...decorator.data.threats.flatMap((t) => t['applies-to']),
+        ];
+        for (const id of [...named, ...decorator.data.threats.flatMap((t) => (t.mitigations ?? []).map((m) => m['attached-to']).filter(Boolean))]) {
+            assert.ok(elementIds.has(id), `${name}: ${id} is not a node or relationship of ${decorator.target[0]}`);
+        }
+        for (const id of [decorator.data.flow, ...named]) {
+            assert.ok(decorator['applies-to'].includes(id), `${name}: applies-to does not list ${id}`);
+        }
+        for (const number of decorator.data.threats.flatMap((t) => t['sequence-numbers'] ?? [])) {
+            assert.ok(sequenceNumbers.has(number), `${name}: ${number} is not a sequence number of ${decorator.data.flow}`);
+        }
+        for (const ids of [boundaries.map((b) => b['unique-id']), decorator.data.threats.map((t) => t['unique-id'])]) {
+            assert.equal(new Set(ids).size, ids.length, `${name}: duplicate unique-id in ${JSON.stringify(ids)}`);
+        }
+    }
+});
