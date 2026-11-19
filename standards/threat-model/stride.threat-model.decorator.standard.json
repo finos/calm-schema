@@ -1,0 +1,88 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://calm.finos.org/standards/threat-model/1.0/stride.threat-model.decorator.standard.json",
+    "title": "CALM STRIDE Threat Model Decorator Standard",
+    "description": "Threat model decorator standard for the STRIDE method. Extends the threat model decorator standard: the methodology is STRIDE, and each threat has at least one STRIDE category. A threat can also have categories from other taxonomies.",
+    "allOf": [
+        {
+            "$ref": "https://calm.finos.org/standards/threat-model/1.0/threat-model.decorator.standard.json"
+        },
+        {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "methodology": {
+                            "const": "STRIDE",
+                            "description": "Must be 'STRIDE' for STRIDE threat models"
+                        },
+                        "threats": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "classification": {
+                                        "type": "array",
+                                        "minItems": 1,
+                                        "contains": {
+                                            "properties": {
+                                                "scheme": {
+                                                    "const": "STRIDE"
+                                                },
+                                                "value": {
+                                                    "$ref": "#/$defs/stride-category"
+                                                }
+                                            },
+                                            "required": [
+                                                "scheme",
+                                                "value"
+                                            ]
+                                        },
+                                        "items": {
+                                            "if": {
+                                                "properties": {
+                                                    "scheme": {
+                                                        "const": "STRIDE"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "scheme"
+                                                ]
+                                            },
+                                            "then": {
+                                                "properties": {
+                                                    "value": {
+                                                        "$ref": "#/$defs/stride-category"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "description": "At least one STRIDE category. Each STRIDE entry must be one of the six categories"
+                                    }
+                                },
+                                "required": [
+                                    "classification"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "$defs": {
+        "stride-category": {
+            "type": "string",
+            "enum": [
+                "spoofing",
+                "tampering",
+                "repudiation",
+                "information-disclosure",
+                "denial-of-service",
+                "elevation-of-privilege"
+            ],
+            "description": "STRIDE category"
+        }
+    }
+}

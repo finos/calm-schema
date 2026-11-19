@@ -1,0 +1,137 @@
+{
+    "$schema": "https://calm.finos.org/standards/threat-model/1.0/threat-model.decorator.standard.json",
+    "unique-id": "route-agent-request-threat-model",
+    "type": "threat-model",
+    "target-type": [
+        "architecture"
+    ],
+    "target": [
+        "agent-gateway.architecture.json"
+    ],
+    "applies-to": [
+        "flow-route-agent-request",
+        "agent-platform",
+        "orchestrator-to-agent-gateway",
+        "agent-registry",
+        "agent-gateway-to-agent-registry",
+        "research-agent",
+        "agent-gateway"
+    ],
+    "data": {
+        "flow": "flow-route-agent-request",
+        "methodology": "FINOS Multi-Agent Reference Architecture Threat Model",
+        "assessed-on": "2026-11-18",
+        "trust-boundaries": [
+            {
+                "unique-id": "tb-agent-platform",
+                "name": "Agent platform",
+                "description": "Only the gateway can reach the agents and the registry inside the platform.",
+                "elements": [
+                    "agent-platform"
+                ]
+            },
+            {
+                "unique-id": "tb-orchestrator-gateway",
+                "name": "Orchestrator to gateway",
+                "description": "A request from the orchestrator is not trusted until the gateway checks it.",
+                "elements": [
+                    "orchestrator-to-agent-gateway"
+                ]
+            }
+        ],
+        "threats": [
+            {
+                "unique-id": "T-AGL-01",
+                "name": "Agent Registry Poisoning",
+                "description": "An attacker gains write access to the Agent Registry and inserts a malicious agent entry so the gateway routes legitimate requests to an agent under the attacker's control.",
+                "classification": [
+                    {
+                        "scheme": "FINOS-MA-TM",
+                        "value": "T-AGL-01",
+                        "reference": "https://github.com/finos/ai-reference-architecture-library/blob/main/Library/reference_architecture/agentic_ai/multi_agent/tm/tm_ma_ref_arch_apr_2026.md#agent-gateway-layer"
+                    }
+                ],
+                "applies-to": [
+                    "agent-registry",
+                    "agent-gateway-to-agent-registry"
+                ],
+                "sequence-numbers": [
+                    2
+                ],
+                "likelihood": "medium",
+                "impact": "critical",
+                "status": "partially-mitigated",
+                "mitigations": [
+                    {
+                        "control": "C9",
+                        "attached-to": "agent-registry",
+                        "state": "implemented"
+                    },
+                    {
+                        "control": "C8",
+                        "attached-to": "agent-registry",
+                        "state": "planned",
+                        "note": "ABAC on registry writes. Not declared in the architecture."
+                    },
+                    {
+                        "control": "C10",
+                        "attached-to": "agent-registry",
+                        "state": "planned",
+                        "note": "Scan new registry entries. Not declared in the architecture."
+                    }
+                ]
+            },
+            {
+                "unique-id": "T-AGL-02",
+                "name": "Gateway Bypass",
+                "description": "An attacker discovers a direct network path to an agent instance, bypassing the gateway and all associated authentication, authorisation, and policy enforcement.",
+                "classification": [
+                    {
+                        "scheme": "FINOS-MA-TM",
+                        "value": "T-AGL-02",
+                        "reference": "https://github.com/finos/ai-reference-architecture-library/blob/main/Library/reference_architecture/agentic_ai/multi_agent/tm/tm_ma_ref_arch_apr_2026.md#agent-gateway-layer"
+                    },
+                    {
+                        "scheme": "CWE",
+                        "value": "CWE-288",
+                        "reference": "https://cwe.mitre.org/data/definitions/288.html"
+                    }
+                ],
+                "applies-to": [
+                    "research-agent",
+                    "agent-platform"
+                ],
+                "likelihood": "low",
+                "impact": "high",
+                "status": "transferred",
+                "justification": "The managed agent platform provider enforces network isolation (C11) and mTLS between workloads (C12) under contract.",
+                "residual-risk": {
+                    "rating": "low",
+                    "accepted-by": "vendor-risk-committee",
+                    "review-by": "2027-05-31"
+                }
+            },
+            {
+                "unique-id": "T-AGL-03",
+                "name": "Guardrail and Policy Evasion",
+                "description": "An attacker crafts requests that are syntactically valid but semantically designed to evade the gateway's guardrail policy rules.",
+                "classification": [
+                    {
+                        "scheme": "FINOS-MA-TM",
+                        "value": "T-AGL-03",
+                        "reference": "https://github.com/finos/ai-reference-architecture-library/blob/main/Library/reference_architecture/agentic_ai/multi_agent/tm/tm_ma_ref_arch_apr_2026.md#agent-gateway-layer"
+                    }
+                ],
+                "applies-to": [
+                    "agent-gateway",
+                    "orchestrator-to-agent-gateway"
+                ],
+                "sequence-numbers": [
+                    1
+                ],
+                "status": "not-applicable",
+                "justification": "In this deployment the orchestrator sends only fixed request templates, so it cannot pass free-form instructions to the gateway."
+            }
+        ]
+    }
+}

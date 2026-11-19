@@ -1,0 +1,234 @@
+{
+    "$schema": "https://calm.finos.org/standards/threat-model/1.0/stride.threat-model.decorator.standard.json",
+    "unique-id": "submit-payment-stride-threat-model",
+    "type": "threat-model",
+    "target-type": [
+        "architecture"
+    ],
+    "target": [
+        "payments-api.architecture.json"
+    ],
+    "applies-to": [
+        "flow-submit-payment",
+        "mobile-app-to-api-gateway",
+        "api-gateway-to-payments-api",
+        "payments-api-to-payments-db",
+        "api-gateway",
+        "payments-api",
+        "payments-db"
+    ],
+    "data": {
+        "flow": "flow-submit-payment",
+        "methodology": "STRIDE",
+        "assessed-on": "2026-10-13",
+        "assessor": "payments-security-architecture",
+        "trust-boundaries": [
+            {
+                "unique-id": "tb-internet-dmz",
+                "name": "Internet to DMZ",
+                "description": "An untrusted customer device crosses into the bank-controlled API perimeter.",
+                "elements": [
+                    "mobile-app-to-api-gateway"
+                ]
+            },
+            {
+                "unique-id": "tb-dmz-core",
+                "name": "DMZ to core services",
+                "description": "The gateway hands a request to services that hold payment logic.",
+                "elements": [
+                    "api-gateway-to-payments-api"
+                ]
+            },
+            {
+                "unique-id": "tb-core-data",
+                "name": "Core services to data tier",
+                "description": "The payments service reaches the store that holds card and payment data.",
+                "elements": [
+                    "payments-api-to-payments-db"
+                ]
+            }
+        ],
+        "threats": [
+            {
+                "unique-id": "t-token-replay",
+                "name": "Access token replay",
+                "description": "An attacker replays a stolen access token to submit payments as the customer.",
+                "classification": [
+                    {
+                        "scheme": "STRIDE",
+                        "value": "spoofing"
+                    }
+                ],
+                "applies-to": [
+                    "mobile-app-to-api-gateway",
+                    "api-gateway"
+                ],
+                "sequence-numbers": [
+                    1
+                ],
+                "likelihood": "medium",
+                "impact": "high",
+                "status": "mitigated",
+                "mitigations": [
+                    {
+                        "control": "oauth2-authentication",
+                        "attached-to": "api-gateway",
+                        "state": "verified",
+                        "note": "Short-lived tokens bound to the device."
+                    }
+                ]
+            },
+            {
+                "unique-id": "t-amount-tamper",
+                "name": "Payment tampering in transit",
+                "description": "An attacker changes the amount or the payee on the wire between the app and the gateway.",
+                "classification": [
+                    {
+                        "scheme": "STRIDE",
+                        "value": "tampering"
+                    }
+                ],
+                "applies-to": [
+                    "mobile-app-to-api-gateway"
+                ],
+                "sequence-numbers": [
+                    1
+                ],
+                "likelihood": "medium",
+                "impact": "high",
+                "status": "mitigated",
+                "mitigations": [
+                    {
+                        "control": "transport-security",
+                        "attached-to": "mobile-app-to-api-gateway",
+                        "state": "verified",
+                        "evidence": [
+                            "https://security.example.com/reports/payments-tls-scan-2026-10"
+                        ]
+                    }
+                ]
+            },
+            {
+                "unique-id": "t-submit-flood",
+                "name": "Payment endpoint flooding",
+                "description": "Automated clients flood the payment endpoint and exhaust its capacity.",
+                "classification": [
+                    {
+                        "scheme": "STRIDE",
+                        "value": "denial-of-service"
+                    }
+                ],
+                "applies-to": [
+                    "mobile-app-to-api-gateway",
+                    "api-gateway"
+                ],
+                "likelihood": "high",
+                "impact": "medium",
+                "status": "identified",
+                "mitigations": [
+                    {
+                        "control": "rate-limiting",
+                        "attached-to": "api-gateway",
+                        "state": "planned",
+                        "note": "Gateway rate limits are not configured yet. The architecture does not declare this control."
+                    }
+                ]
+            },
+            {
+                "unique-id": "t-bola",
+                "name": "Payment from an account the caller does not own",
+                "description": "A caller changes the payer account identifier and pays from an account they do not own.",
+                "classification": [
+                    {
+                        "scheme": "STRIDE",
+                        "value": "elevation-of-privilege"
+                    },
+                    {
+                        "scheme": "CWE",
+                        "value": "CWE-639",
+                        "reference": "https://cwe.mitre.org/data/definitions/639.html"
+                    }
+                ],
+                "applies-to": [
+                    "api-gateway-to-payments-api",
+                    "payments-api"
+                ],
+                "likelihood": "medium",
+                "impact": "critical",
+                "status": "partially-mitigated",
+                "mitigations": [
+                    {
+                        "control": "authorization-checks",
+                        "attached-to": "payments-api",
+                        "state": "implemented",
+                        "note": "The ownership check covers the payer account only."
+                    },
+                    {
+                        "control": "mutual-tls",
+                        "attached-to": "api-gateway-to-payments-api",
+                        "state": "implemented",
+                        "note": "Authenticates the gateway, not the end user."
+                    }
+                ]
+            },
+            {
+                "unique-id": "t-pan-at-rest",
+                "name": "Card data exposed from storage",
+                "description": "Card data can be read if database storage or its backups are exposed.",
+                "classification": [
+                    {
+                        "scheme": "STRIDE",
+                        "value": "information-disclosure"
+                    }
+                ],
+                "applies-to": [
+                    "payments-db",
+                    "payments-api-to-payments-db"
+                ],
+                "sequence-numbers": [
+                    3
+                ],
+                "likelihood": "low",
+                "impact": "critical",
+                "status": "partially-mitigated",
+                "mitigations": [
+                    {
+                        "control": "encryption-at-rest",
+                        "attached-to": "payments-db",
+                        "state": "implemented",
+                        "note": "The database is encrypted. Card numbers still appear in application logs."
+                    }
+                ]
+            },
+            {
+                "unique-id": "t-no-audit",
+                "name": "Payment cannot be traced to a user",
+                "description": "A payment record cannot be linked to the user who made it.",
+                "classification": [
+                    {
+                        "scheme": "STRIDE",
+                        "value": "repudiation"
+                    }
+                ],
+                "applies-to": [
+                    "payments-api-to-payments-db"
+                ],
+                "likelihood": "low",
+                "impact": "medium",
+                "status": "accepted",
+                "justification": "Audit logging is planned for the next release. Gateway access logs give partial traceability until then.",
+                "mitigations": [
+                    {
+                        "control": "audit-logging",
+                        "state": "planned"
+                    }
+                ],
+                "residual-risk": {
+                    "rating": "medium",
+                    "accepted-by": "payments-security-lead",
+                    "review-by": "2027-03-31"
+                }
+            }
+        ]
+    }
+}

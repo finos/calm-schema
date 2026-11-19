@@ -89,7 +89,8 @@ npm package does not include the standards, and CALM Hub keeps its own copy as s
    standard can stay on that release when `schema/` moves to the next one: `npm test` takes an
    earlier release from its `v<major>.<minor>` tag. In a fork, run `git fetch upstream --tags`.
 3. Add or update an example in `standards/<name>/examples/`. `npm test` validates each example
-   against the standard in its `$schema`.
+   against the standard in its `$schema`. An example can also be an architecture that a decorator example
+   targets; `npm test` validates it against its CALM release.
 4. To release, tag `standard-<name>-v<major>.<minor>`, then run `publish-site.yml`. The schema
    release that the standard references must be on calm.finos.org first, or in the same run.
    `publish-site.yml` publishes only the JSON files at the top of `standards/<name>/`, not the

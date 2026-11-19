@@ -1,0 +1,250 @@
+{
+    "$schema": "https://calm.finos.org/release/1.3/meta/calm.json",
+    "title": "Payments API",
+    "description": "A mobile app submits card payments through an API gateway to a payments service that stores them in a database. Used to demonstrate threat modelling on a flow.",
+    "nodes": [
+        {
+            "unique-id": "customer",
+            "node-type": "actor",
+            "name": "Customer",
+            "description": "Bank customer who pays from the mobile app"
+        },
+        {
+            "unique-id": "mobile-app",
+            "node-type": "webclient",
+            "name": "Mobile App",
+            "description": "Customer mobile banking app on an untrusted device",
+            "controls": {
+                "certificate-pinning": {
+                    "description": "The app trusts only the pinned API gateway certificate",
+                    "requirements": [
+                        {
+                            "requirement-url": "https://calm.finos.org/release/1.3/meta/control-requirement.json",
+                            "config": {
+                                "control-id": "payments-certificate-pinning",
+                                "name": "Certificate Pinning",
+                                "description": "The app trusts only the pinned API gateway certificate"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "unique-id": "api-gateway",
+            "node-type": "service",
+            "name": "API Gateway",
+            "description": "Public entry point that authenticates callers and validates requests before routing them",
+            "controls": {
+                "oauth2-authentication": {
+                    "description": "Callers present short-lived OAuth 2.0 access tokens that are bound to the device",
+                    "requirements": [
+                        {
+                            "requirement-url": "https://calm.finos.org/release/1.3/meta/control-requirement.json",
+                            "config": {
+                                "control-id": "payments-oauth2-authentication",
+                                "name": "OAuth 2.0 Authentication",
+                                "description": "Callers present short-lived OAuth 2.0 access tokens that are bound to the device"
+                            }
+                        }
+                    ]
+                },
+                "request-validation": {
+                    "description": "The gateway checks request schema, size and payee fields before routing",
+                    "requirements": [
+                        {
+                            "requirement-url": "https://calm.finos.org/release/1.3/meta/control-requirement.json",
+                            "config": {
+                                "control-id": "payments-request-validation",
+                                "name": "Request Validation",
+                                "description": "The gateway checks request schema, size and payee fields before routing"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "unique-id": "payments-api",
+            "node-type": "service",
+            "name": "Payments API",
+            "description": "Service that validates, records and settles payments",
+            "controls": {
+                "authorization-checks": {
+                    "description": "The service checks that the caller owns the payer account",
+                    "requirements": [
+                        {
+                            "requirement-url": "https://calm.finos.org/release/1.3/meta/control-requirement.json",
+                            "config": {
+                                "control-id": "payments-authorization-checks",
+                                "name": "Authorization Checks",
+                                "description": "The service checks that the caller owns the payer account"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "unique-id": "payments-db",
+            "node-type": "database",
+            "name": "Payments DB",
+            "description": "Relational database that holds payment records",
+            "controls": {
+                "encryption-at-rest": {
+                    "description": "Database storage and backups are encrypted with keys held in the bank key management service",
+                    "requirements": [
+                        {
+                            "requirement-url": "https://calm.finos.org/release/1.3/meta/control-requirement.json",
+                            "config": {
+                                "control-id": "payments-encryption-at-rest",
+                                "name": "Encryption At Rest",
+                                "description": "Database storage and backups are encrypted with keys held in the bank key management service"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "relationships": [
+        {
+            "unique-id": "customer-uses-mobile-app",
+            "description": "Customer authenticates and pays with the mobile app",
+            "relationship-type": {
+                "interacts": {
+                    "actor": "customer",
+                    "nodes": [
+                        "mobile-app"
+                    ]
+                }
+            }
+        },
+        {
+            "unique-id": "mobile-app-to-api-gateway",
+            "description": "App submits payment requests to the gateway over the internet",
+            "relationship-type": {
+                "connects": {
+                    "source": {
+                        "node": "mobile-app"
+                    },
+                    "destination": {
+                        "node": "api-gateway"
+                    }
+                }
+            },
+            "protocol": "HTTPS",
+            "controls": {
+                "transport-security": {
+                    "description": "TLS 1.3 protects traffic between the app and the gateway",
+                    "requirements": [
+                        {
+                            "requirement-url": "https://calm.finos.org/release/1.3/meta/control-requirement.json",
+                            "config": {
+                                "control-id": "payments-transport-security",
+                                "name": "Transport Security",
+                                "description": "TLS 1.3 protects traffic between the app and the gateway"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "unique-id": "api-gateway-to-payments-api",
+            "description": "Gateway forwards validated requests to the payments service",
+            "relationship-type": {
+                "connects": {
+                    "source": {
+                        "node": "api-gateway"
+                    },
+                    "destination": {
+                        "node": "payments-api"
+                    }
+                }
+            },
+            "protocol": "mTLS",
+            "controls": {
+                "mutual-tls": {
+                    "description": "The gateway and the payments service authenticate each other with certificates",
+                    "requirements": [
+                        {
+                            "requirement-url": "https://calm.finos.org/release/1.3/meta/control-requirement.json",
+                            "config": {
+                                "control-id": "payments-mutual-tls",
+                                "name": "Mutual TLS",
+                                "description": "The gateway and the payments service authenticate each other with certificates"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "unique-id": "payments-api-to-payments-db",
+            "description": "Payments service stores payment records",
+            "relationship-type": {
+                "connects": {
+                    "source": {
+                        "node": "payments-api"
+                    },
+                    "destination": {
+                        "node": "payments-db"
+                    }
+                }
+            },
+            "protocol": "JDBC"
+        }
+    ],
+    "flows": [
+        {
+            "unique-id": "flow-submit-payment",
+            "name": "Submit Payment",
+            "description": "A customer submits a payment in the mobile app. The gateway forwards it to the payments service, which stores it and returns the result.",
+            "transitions": [
+                {
+                    "relationship-unique-id": "mobile-app-to-api-gateway",
+                    "sequence-number": 1,
+                    "description": "Submit payment request"
+                },
+                {
+                    "relationship-unique-id": "api-gateway-to-payments-api",
+                    "sequence-number": 2,
+                    "description": "Forward validated request"
+                },
+                {
+                    "relationship-unique-id": "payments-api-to-payments-db",
+                    "sequence-number": 3,
+                    "description": "Persist the payment"
+                },
+                {
+                    "relationship-unique-id": "api-gateway-to-payments-api",
+                    "sequence-number": 4,
+                    "description": "Return payment result",
+                    "direction": "destination-to-source"
+                },
+                {
+                    "relationship-unique-id": "mobile-app-to-api-gateway",
+                    "sequence-number": 5,
+                    "description": "Return payment confirmation",
+                    "direction": "destination-to-source"
+                }
+            ]
+        }
+    ],
+    "controls": {
+        "audit-logging": {
+            "description": "Every payment state change is written to an append-only audit log",
+            "requirements": [
+                {
+                    "requirement-url": "https://calm.finos.org/release/1.3/meta/control-requirement.json",
+                    "config": {
+                        "control-id": "payments-audit-logging",
+                        "name": "Audit Logging",
+                        "description": "Every payment state change is written to an append-only audit log"
+                    }
+                }
+            ]
+        }
+    }
+}
